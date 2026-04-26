@@ -1,0 +1,198 @@
+/* Круговые отзывы — порт CircularTestimonials под палитру портфолио */
+
+.circular-testimonials {
+  position: relative;
+}
+
+.circular-testimonials__intro {
+  max-width: 40rem;
+  color: var(--text-soft);
+  margin-bottom: 2rem;
+}
+
+.circular-testimonials__shell {
+  position: relative;
+  width: 100%;
+  max-width: 56rem;
+  margin-inline: auto;
+  padding-inline: clamp(0.5rem, 2vw, 1.5rem);
+  padding-block: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.circular-testimonials__shell:focus-visible {
+  outline: 2px solid rgba(0, 240, 255, 0.55);
+  outline-offset: 4px;
+}
+
+.circular-testimonials__grid {
+  display: grid;
+  gap: clamp(2.5rem, 6vw, 5rem);
+}
+
+.circular-testimonials__stage {
+  position: relative;
+  width: 100%;
+  height: min(24rem, 52vw);
+  max-height: 420px;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.circular-testimonials__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 45, 158, 0.12),
+    0 0 40px rgba(0, 240, 255, 0.08);
+  transform-origin: center center;
+  will-change: transform, opacity;
+  transition: transform 0.8s cubic-bezier(0.4, 2, 0.3, 1), opacity 0.8s cubic-bezier(0.4, 2, 0.3, 1);
+}
+
+.circular-testimonials__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+}
+
+.circular-testimonials__name {
+  font-family: "Unbounded", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.15rem, 2.5vw, 1.75rem);
+  margin: 0 0 0.35rem;
+  color: var(--text);
+  text-shadow: 0 0 24px rgba(0, 240, 255, 0.15);
+}
+
+.circular-testimonials__role {
+  margin: 0 0 1.5rem;
+  font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+  color: var(--accent-3);
+}
+
+.circular-testimonials__quote {
+  margin: 0;
+  padding: 0;
+  border: none;
+  font-size: clamp(1rem, 1.8vw, 1.125rem);
+  line-height: 1.75;
+  color: var(--text-soft);
+  font-weight: 400;
+}
+
+.circular-testimonials__word {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(8px);
+  transform: translateY(5px);
+  transition:
+    opacity 0.22s ease,
+    filter 0.22s ease,
+    transform 0.22s ease;
+  transition-delay: calc(var(--w, 0) * 25ms);
+}
+
+.circular-testimonials__quote.is-words-visible .circular-testimonials__word {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+
+.circular-testimonials__arrows {
+  display: flex;
+  gap: 1.25rem;
+  padding-top: clamp(1.5rem, 4vw, 3rem);
+}
+
+@media (min-width: 768px) {
+  .circular-testimonials__grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+
+  .circular-testimonials__arrows {
+    padding-top: 0;
+    margin-top: 2rem;
+  }
+}
+
+.circular-testimonials__arrow {
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  background: rgba(12, 16, 32, 0.95);
+  color: #e8f2ff;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.circular-testimonials__arrow:hover,
+.circular-testimonials__arrow:focus-visible {
+  outline: none;
+  background: rgba(0, 240, 255, 0.22);
+  border-color: rgba(0, 240, 255, 0.65);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+}
+
+.circular-testimonials__arrow svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+
+.circular-testimonials__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .circular-testimonials__img {
+    transition-duration: 0.01ms;
+  }
+
+  .circular-testimonials__word {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Скролл-ревил */
+@media (prefers-reduced-motion: no-preference) {
+  html.js-reveal #testimonials:not(.is-visible) .circular-testimonials__shell {
+    opacity: 0;
+    transform: translateY(var(--vibe-reveal-card-shift));
+    filter: blur(var(--vibe-reveal-card-blur));
+    transition:
+      opacity var(--vibe-reveal-card-duration) cubic-bezier(0.16, 1, 0.3, 1),
+      transform var(--vibe-reveal-card-duration) cubic-bezier(0.16, 1, 0.3, 1),
+      filter calc(var(--vibe-reveal-card-duration) * 0.72) ease;
+  }
+
+  html.js-reveal #testimonials.is-visible .circular-testimonials__shell {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition-delay: 0.1s;
+  }
+}
