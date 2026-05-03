@@ -616,7 +616,8 @@ html[data-vibe-level="1"] .hero-copy h1 .title-ombre {
   animation-delay: 0.23s;
 }
 
-#skills .card:nth-child(5) {
+#skills .card:nth-child(5),
+#what-works .card:nth-child(5) {
   animation-delay: 0.29s;
 }
 
@@ -916,7 +917,8 @@ footer {
     transition-delay: 0.26s;
   }
 
-  html.js-reveal #skills.is-visible .card:nth-child(5) {
+  html.js-reveal #skills.is-visible .card:nth-child(5),
+  html.js-reveal #what-works.is-visible .card:nth-child(5) {
     transition-delay: 0.32s;
   }
 
