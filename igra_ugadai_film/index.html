@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Угадай фильм по эмодзи 🎬</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-1: #0b0d1a;
+    --bg-2: #1a0b2e;
+    --bg-3: #2d0b3d;
+    --accent: #ff4d8d;
+    --accent-2: #7c5cff;
+    --accent-3: #00e0ff;
+    --text: #f5f5ff;
+    --text-dim: #a8a8c8;
+    --success: #2ee59d;
+    --error: #ff5673;
+    --card: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(255, 255, 255, 0.12);
+    --shadow: 0 30px 80px -20px rgba(124, 92, 255, 0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    background: var(--bg-1);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    background:
+      radial-gradient(ellipse at 15% 20%, rgba(255, 77, 141, 0.25), transparent 50%),
+      radial-gradient(ellipse at 85% 10%, rgba(124, 92, 255, 0.30), transparent 55%),
+      radial-gradient(ellipse at 50% 100%, rgba(0, 224, 255, 0.20), transparent 60%),
+      linear-gradient(135deg, var(--bg-1), var(--bg-2) 50%, var(--bg-3));
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+      radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 50px 50px, 80px 80px;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* Floating background blobs */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    animation: floatBlob 18s ease-in-out infinite;
+  }
+  .blob.b1 { width: 380px; height: 380px; background: var(--accent); top: -120px; left: -100px; }
+  .blob.b2 { width: 320px; height: 320px; background: var(--accent-2); bottom: -80px; right: -80px; animation-delay: -6s; }
+  .blob.b3 { width: 260px; height: 260px; background: var(--accent-3); top: 40%; right: 10%; animation-delay: -12s; opacity: 0.3; }
+
+  @keyframes floatBlob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(40px, -30px) scale(1.1); }
+  }
+
+  .app {
+    width: 100%;
+    max-width: 720px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 28px;
+    padding: 40px;
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 28px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255,77,141,0.4), rgba(124,92,255,0.4), rgba(0,224,255,0.2));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .screen { animation: fadeIn 0.5s ease; }
+  .screen.hidden { display: none; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- Welcome screen ---------- */
+  .welcome {
+    text-align: center;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: rgba(255,77,141,0.14);
+    border: 1px solid rgba(255,77,141,0.35);
+    color: #ffb3cc;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    letter-spacing: 0.3px;
+  }
+  .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  h1 .grad {
+    background: linear-gradient(90deg, #ff4d8d, #7c5cff 60%, #00e0ff);
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto 28px;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 28px 0 32px;
+  }
+  .feature {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px 12px;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .feature:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.18); }
+  .feature .ico { font-size: 24px; margin-bottom: 6px; display: block; }
+  .feature .lbl { font-size: 12px; color: var(--text-dim); font-weight: 600; }
+  .feature .val { font-size: 16px; font-weight: 700; }
+
+  /* ---------- Game screen ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 12px;
+  }
+  .pill {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .pill .num { color: var(--text); }
+  .pill.score { background: rgba(46,229,157,0.10); border-color: rgba(46,229,157,0.30); color: var(--success); }
+
+  .progress {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    border-radius: 999px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 16px rgba(124,92,255,0.6);
+  }
+
+  .emoji-stage {
+    text-align: center;
+    padding: 36px 20px;
+    background: linear-gradient(135deg, rgba(124,92,255,0.10), rgba(255,77,141,0.06));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 22px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .emoji-stage::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%);
+    pointer-events: none;
+  }
+  .emoji-display {
+    font-size: clamp(48px, 10vw, 76px);
+    line-height: 1.2;
+    letter-spacing: 4px;
+    user-select: none;
+    animation: pop 0.5s cubic-bezier(.34,1.56,.64,1);
+    position: relative;
+    z-index: 1;
+  }
+  @keyframes pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .hint {
+    margin-top: 14px;
+    font-size: 14px;
+    color: var(--text-dim);
+    min-height: 20px;
+  }
+  .hint.show { color: #ffd66b; }
+
+  .input-wrap {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .input-wrap input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 18px 22px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+  .input-wrap input::placeholder { color: var(--text-dim); }
+  .input-wrap input:focus {
+    border-color: var(--accent-2);
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 0 0 4px rgba(124,92,255,0.18);
+  }
+  .input-wrap.correct input { border-color: var(--success); box-shadow: 0 0 0 4px rgba(46,229,157,0.20); }
+  .input-wrap.wrong input { border-color: var(--error); box-shadow: 0 0 0 4px rgba(255,86,115,0.20); animation: shake 0.4s; }
+
+  @keyframes shake {
+    10%, 90% { transform: translateX(-2px); }
+    20%, 80% { transform: translateX(4px); }
+    30%, 50%, 70% { transform: translateX(-6px); }
+    40%, 60% { transform: translateX(6px); }
+  }
+
+  .feedback {
+    min-height: 24px;
+    margin-bottom: 16px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .feedback.correct { color: var(--success); }
+  .feedback.wrong { color: var(--error); }
+  .feedback.reveal { color: #ffd66b; }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 16px 22px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn:not(:disabled):active { transform: translateY(1px) scale(0.99); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    box-shadow: 0 10px 30px -10px rgba(255,77,141,0.6), 0 6px 20px -8px rgba(124,92,255,0.5);
+  }
+  .btn-primary:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px -10px rgba(255,77,141,0.7), 0 10px 28px -8px rgba(124,92,255,0.6);
+  }
+
+  .btn-ghost {
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .btn-ghost:not(:disabled):hover {
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.20);
+  }
+
+  .btn-large {
+    padding: 18px 26px;
+    font-size: 16px;
+  }
+
+  /* ---------- Result screen ---------- */
+  .result {
+    text-align: center;
+  }
+  .trophy {
+    font-size: 76px;
+    margin-bottom: 16px;
+    display: inline-block;
+    animation: trophyBounce 1.2s ease;
+  }
+  @keyframes trophyBounce {
+    0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(10deg); }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  .score-big {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, #ff4d8d, #7c5cff, #00e0ff);
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+  }
+  .score-of {
+    color: var(--text-dim);
+    font-size: 16px;
+    margin-bottom: 18px;
+  }
+
+  .verdict {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .verdict-desc {
+    color: var(--text-dim);
+    margin-bottom: 28px;
+  }
+
+  .recap {
+    text-align: left;
+    margin-bottom: 28px;
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 6px;
+  }
+  .recap::-webkit-scrollbar { width: 6px; }
+  .recap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+  .recap-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    margin-bottom: 8px;
+  }
+  .recap-item .e { font-size: 22px; flex-shrink: 0; }
+  .recap-item .info { flex: 1; min-width: 0; }
+  .recap-item .title { font-weight: 700; font-size: 15px; }
+  .recap-item .meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; word-break: break-word; }
+  .recap-item .mark {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: grid; place-items: center; flex-shrink: 0;
+    font-size: 14px; font-weight: 700;
+  }
+  .recap-item .mark.ok { background: rgba(46,229,157,0.18); color: var(--success); }
+  .recap-item .mark.no { background: rgba(255,86,115,0.18); color: var(--error); }
+
+  /* ---------- Confetti ---------- */
+  .confetti {
+    position: fixed;
+    top: -10px;
+    width: 10px; height: 14px;
+    pointer-events: none;
+    z-index: 100;
+    animation: fall 3s linear forwards;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 560px) {
+    .card { padding: 28px 22px; border-radius: 22px; }
+    .features { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .feature { padding: 12px 8px; }
+    .feature .lbl { font-size: 11px; }
+    .feature .val { font-size: 14px; }
+    .actions { flex-direction: column; }
+    .btn { width: 100%; }
+    .topbar { flex-wrap: wrap; }
+    .score-big { font-size: 52px; }
+  }
+</style>
+</head>
+<body>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+
+  <main class="app">
+    <div class="card">
+      <!-- Welcome screen -->
+      <section class="screen welcome" id="welcome">
+        <div class="badge"><span class="dot"></span> Интерактивная игра</div>
+        <h1>Угадай <span class="grad">фильм</span><br>по эмодзи 🎬</h1>
+        <p class="subtitle">Декодируй ребус из эмодзи и угадай известный фильм. 8 раундов, подсказки и финальный счёт — проверь свою киноэрудицию!</p>
+
+        <div class="features">
+          <div class="feature">
+            <span class="ico">🎯</span>
+            <div class="val" id="totalRounds">8</div>
+            <div class="lbl">раундов</div>
+          </div>
+          <div class="feature">
+            <span class="ico">💡</span>
+            <div class="val">−5</div>
+            <div class="lbl">за подсказку</div>
+          </div>
+          <div class="feature">
+            <span class="ico">⚡</span>
+            <div class="val">10</div>
+            <div class="lbl">очков за ответ</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-large" id="startBtn">Начать игру →</button>
+      </section>
+
+      <!-- Game screen -->
+      <section class="screen hidden" id="game">
+        <div class="topbar">
+          <div class="pill">Раунд <span class="num" id="roundNum">1</span> / <span class="num" id="roundTotal">8</span></div>
+          <div class="pill score">Очки: <span class="num" id="score">0</span></div>
+        </div>
+
+        <div class="progress"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+
+        <div class="emoji-stage">
+          <div class="emoji-display" id="emoji">🎬</div>
+          <div class="hint" id="hint">Введи название фильма ниже</div>
+        </div>
+
+        <div class="input-wrap" id="inputWrap">
+          <input type="text" id="answerInput" placeholder="Например: Король Лев" autocomplete="off" spellcheck="false" />
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="actions">
+          <button class="btn btn-ghost" id="hintBtn">💡 Подсказка</button>
+          <button class="btn btn-ghost" id="skipBtn">Пропустить</button>
+          <button class="btn btn-primary" id="checkBtn">Проверить</button>
+        </div>
+      </section>
+
+      <!-- Result screen -->
+      <section class="screen hidden result" id="result">
+        <div class="trophy" id="trophy">🏆</div>
+        <div class="score-big"><span id="finalScore">0</span></div>
+        <div class="score-of">из <span id="finalMax">80</span> возможных очков</div>
+        <div class="verdict" id="verdict">Отличная работа!</div>
+        <div class="verdict-desc" id="verdictDesc">Ты настоящий киноман.</div>
+
+        <div class="recap" id="recap"></div>
+
+        <div class="actions">
+          <button class="btn btn-ghost" id="shareBtn">📤 Поделиться</button>
+          <button class="btn btn-primary" id="restartBtn">Сыграть ещё раз</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+<script>
+  // ===== Movie data =====
+  // Each movie has emoji puzzle, accepted answers (Russian + English variants), and a hint.
+  const MOVIES = [
+    {
+      emoji: "🦁👑🌅",
+      answers: ["король лев", "the lion king", "lion king"],
+      title: "Король Лев",
+      hint: "Анимация Disney про юного наследника саванны."
+    },
+    {
+      emoji: "🚢💔🧊",
+      answers: ["титаник", "titanic"],
+      title: "Титаник",
+      hint: "Романтическая катастрофа 1912 года, реж. Джеймс Кэмерон."
+    },
+    {
+      emoji: "🧙‍♂️💍🌋",
+      answers: [
+        "властелин колец", "властелин колец: братство кольца", "властелин колец братство кольца",
+        "the lord of the rings", "lord of the rings", "lotr"
+      ],
+      title: "Властелин колец",
+      hint: "Эпическая трилогия по роману Толкина."
+    },
+    {
+      emoji: "🦖🦕🏝️",
+      answers: ["парк юрского периода", "юрский парк", "jurassic park"],
+      title: "Парк юрского периода",
+      hint: "Динозавры, остров и Стивен Спилберг."
+    },
+    {
+      emoji: "❄️👸⛄",
+      answers: ["холодное сердце", "frozen"],
+      title: "Холодное сердце",
+      hint: "Disney, две сестры и снеговик Олаф."
+    },
+    {
+      emoji: "💊🔵🔴🕴️",
+      answers: ["матрица", "the matrix", "matrix"],
+      title: "Матрица",
+      hint: "Красная или синяя? Нео делает выбор."
+    },
+    {
+      emoji: "🎈🏠👴",
+      answers: ["вверх", "up"],
+      title: "Вверх",
+      hint: "Pixar, дом на воздушных шарах и мальчик-скаут."
+    },
+    {
+      emoji: "🤖🚀⚔️",
+      answers: ["звёздные войны", "звездные войны", "star wars"],
+      title: "Звёздные войны",
+      hint: "Далёкая-далёкая галактика и световые мечи."
+    },
+    {
+      emoji: "🕷️🦸‍♂️🏙️",
+      answers: ["человек-паук", "человек паук", "spider-man", "spiderman", "spider man"],
+      title: "Человек-паук",
+      hint: "С большой силой приходит большая ответственность."
+    },
+    {
+      emoji: "👽🚲🌕",
+      answers: ["инопланетянин", "et", "e.t.", "e t"],
+      title: "Инопланетянин",
+      hint: "«Телефон... домой». Классика Спилберга 1982 года."
+    },
+    {
+      emoji: "🍫🏭🎩",
+      answers: [
+        "чарли и шоколадная фабрика", "вилли вонка и шоколадная фабрика",
+        "charlie and the chocolate factory", "willy wonka"
+      ],
+      title: "Чарли и шоколадная фабрика",
+      hint: "Золотой билет и эксцентричный кондитер."
+    },
+    {
+      emoji: "🏴‍☠️⚓💀",
+      answers: [
+        "пираты карибского моря", "pirates of the caribbean"
+      ],
+      title: "Пираты Карибского моря",
+      hint: "Капитан Джек Воробей и Чёрная жемчужина."
+    },
+  ];
+
+  // ===== State =====
+  const STATE = {
+    rounds: [],
+    current: 0,
+    score: 0,
+    history: [],
+    hintUsed: false,
+    revealed: false,
+  };
+
+  const POINTS_FULL = 10;
+  const HINT_PENALTY = 5;
+  const TOTAL_ROUNDS = 8;
+
+  // ===== Helpers =====
+  const $ = (sel) => document.querySelector(sel);
+
+  const normalize = (s) => s
+    .toLowerCase()
+    .replace(/ё/g, "е")
+    .replace(/[.,!?:;«»"'`’()\[\]\-—–_]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // Soft fuzzy comparison: allow very small typos (Levenshtein distance up to 1 for short, 2 for longer).
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    if (Math.abs(m - n) > 3) return 99;
+    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        const cost = a[i-1] === b[j-1] ? 0 : 1;
+        dp[i][j] = Math.min(dp[i-1][j] + 1, dp[i][j-1] + 1, dp[i-1][j-1] + cost);
+      }
+    }
+    return dp[m][n];
+  }
+
+  function isAnswerCorrect(input, accepted) {
+    const norm = normalize(input);
+    if (!norm) return false;
+    return accepted.some(a => {
+      const target = normalize(a);
+      if (norm === target) return true;
+      if (target.length > 6 && norm.includes(target)) return true;
+      const tolerance = target.length <= 6 ? 1 : 2;
+      return levenshtein(norm, target) <= tolerance;
+    });
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // ===== Screens =====
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    const el = document.getElementById(id);
+    el.classList.remove('hidden');
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+  }
+
+  // ===== Game flow =====
+  function startGame() {
+    STATE.rounds = shuffle(MOVIES).slice(0, TOTAL_ROUNDS);
+    STATE.current = 0;
+    STATE.score = 0;
+    STATE.history = [];
+    $('#roundTotal').textContent = TOTAL_ROUNDS;
+    $('#score').textContent = 0;
+    showScreen('game');
+    renderRound();
+  }
+
+  function renderRound() {
+    STATE.hintUsed = false;
+    STATE.revealed = false;
+
+    const round = STATE.rounds[STATE.current];
+    $('#roundNum').textContent = STATE.current + 1;
+    $('#progressFill').style.width = ((STATE.current) / TOTAL_ROUNDS * 100) + '%';
+
+    const emojiEl = $('#emoji');
+    emojiEl.textContent = round.emoji;
+    emojiEl.style.animation = 'none';
+    void emojiEl.offsetWidth;
+    emojiEl.style.animation = '';
+
+    $('#hint').textContent = 'Введи название фильма ниже';
+    $('#hint').classList.remove('show');
+
+    const input = $('#answerInput');
+    input.value = '';
+    input.disabled = false;
+    input.focus();
+
+    $('#inputWrap').classList.remove('correct', 'wrong');
+    $('#feedback').textContent = '';
+    $('#feedback').className = 'feedback';
+
+    $('#checkBtn').disabled = false;
+    $('#checkBtn').textContent = 'Проверить';
+    $('#hintBtn').disabled = false;
+    $('#skipBtn').disabled = false;
+  }
+
+  function useHint() {
+    if (STATE.hintUsed || STATE.revealed) return;
+    STATE.hintUsed = true;
+    const round = STATE.rounds[STATE.current];
+    const hintEl = $('#hint');
+    hintEl.textContent = '💡 ' + round.hint;
+    hintEl.classList.add('show');
+    $('#hintBtn').disabled = true;
+  }
+
+  function checkAnswer() {
+    if (STATE.revealed) {
+      nextRound();
+      return;
+    }
+    const round = STATE.rounds[STATE.current];
+    const input = $('#answerInput');
+    const value = input.value;
+
+    if (!value.trim()) {
+      input.focus();
+      return;
+    }
+
+    const correct = isAnswerCorrect(value, round.answers);
+    const wrap = $('#inputWrap');
+    const fb = $('#feedback');
+
+    if (correct) {
+      const earned = STATE.hintUsed ? POINTS_FULL - HINT_PENALTY : POINTS_FULL;
+      STATE.score += earned;
+      $('#score').textContent = STATE.score;
+      wrap.classList.remove('wrong');
+      wrap.classList.add('correct');
+      fb.textContent = `✅ Верно! +${earned} очков`;
+      fb.className = 'feedback correct';
+      STATE.history.push({ ...round, given: value, correct: true, earned });
+      lockAndAdvance(true);
+    } else {
+      wrap.classList.remove('correct');
+      wrap.classList.add('wrong');
+      fb.textContent = '❌ Неверно. Попробуй ещё или используй подсказку.';
+      fb.className = 'feedback wrong';
+      setTimeout(() => wrap.classList.remove('wrong'), 600);
+    }
+  }
+
+  function skipRound() {
+    if (STATE.revealed) { nextRound(); return; }
+    const round = STATE.rounds[STATE.current];
+    const fb = $('#feedback');
+    fb.textContent = `🎬 Это был «${round.title}»`;
+    fb.className = 'feedback reveal';
+    STATE.history.push({ ...round, given: $('#answerInput').value || '—', correct: false, earned: 0 });
+    lockAndAdvance(false);
+  }
+
+  function lockAndAdvance(wasCorrect) {
+    STATE.revealed = true;
+    $('#answerInput').disabled = true;
+    $('#hintBtn').disabled = true;
+    $('#skipBtn').disabled = true;
+    $('#checkBtn').textContent = STATE.current + 1 < TOTAL_ROUNDS ? 'Следующий раунд →' : 'Посмотреть результат →';
+    $('#checkBtn').disabled = false;
+    if (wasCorrect) burstConfetti(10);
+  }
+
+  function nextRound() {
+    STATE.current++;
+    if (STATE.current >= TOTAL_ROUNDS) {
+      finishGame();
+    } else {
+      renderRound();
+    }
+  }
+
+  function finishGame() {
+    $('#progressFill').style.width = '100%';
+    const max = TOTAL_ROUNDS * POINTS_FULL;
+    $('#finalScore').textContent = STATE.score;
+    $('#finalMax').textContent = max;
+
+    const ratio = STATE.score / max;
+    let trophy, verdict, desc;
+    if (ratio >= 0.9) {
+      trophy = '🏆'; verdict = 'Легенда кинематографа!';
+      desc = 'Ты знаешь кино как никто другой.';
+    } else if (ratio >= 0.7) {
+      trophy = '🥇'; verdict = 'Отличный результат!';
+      desc = 'Ты настоящий киноман.';
+    } else if (ratio >= 0.5) {
+      trophy = '🥈'; verdict = 'Уверенный знаток!';
+      desc = 'Ещё немного — и будешь экспертом.';
+    } else if (ratio >= 0.3) {
+      trophy = '🥉'; verdict = 'Неплохо для разминки!';
+      desc = 'Время посмотреть больше классики.';
+    } else {
+      trophy = '🎬'; verdict = 'Только начинаешь?';
+      desc = 'Самое время устроить киномарафон.';
+    }
+    $('#trophy').textContent = trophy;
+    $('#verdict').textContent = verdict;
+    $('#verdictDesc').textContent = desc;
+
+    const recap = $('#recap');
+    recap.innerHTML = '';
+    STATE.history.forEach((h, i) => {
+      const item = document.createElement('div');
+      item.className = 'recap-item';
+      item.innerHTML = `
+        <div class="e">${h.emoji}</div>
+        <div class="info">
+          <div class="title">${i+1}. ${h.title}</div>
+          <div class="meta">Твой ответ: ${h.given || '—'} ${h.correct ? `· +${h.earned}` : ''}</div>
+        </div>
+        <div class="mark ${h.correct ? 'ok' : 'no'}">${h.correct ? '✓' : '✕'}</div>
+      `;
+      recap.appendChild(item);
+    });
+
+    showScreen('result');
+    if (ratio >= 0.5) burstConfetti(60);
+  }
+
+  // ===== Confetti =====
+  function burstConfetti(count) {
+    const colors = ['#ff4d8d', '#7c5cff', '#00e0ff', '#2ee59d', '#ffd66b'];
+    for (let i = 0; i < count; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.animationDuration = (2 + Math.random() * 2) + 's';
+      c.style.animationDelay = (Math.random() * 0.4) + 's';
+      c.style.transform = `rotate(${Math.random()*360}deg)`;
+      c.style.borderRadius = Math.random() > 0.5 ? '2px' : '50%';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }
+  }
+
+  // ===== Share =====
+  async function share() {
+    const max = TOTAL_ROUNDS * POINTS_FULL;
+    const text = `Угадай фильм по эмодзи 🎬\nМой результат: ${STATE.score}/${max} очков!\nА сколько наберёшь ты?`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Угадай фильм по эмодзи', text }); return; } catch(e) {}
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = $('#shareBtn');
+      const original = btn.textContent;
+      btn.textContent = '✅ Скопировано!';
+      setTimeout(() => btn.textContent = original, 1800);
+    } catch(e) {
+      alert(text);
+    }
+  }
+
+  // ===== Bindings =====
+  $('#startBtn').addEventListener('click', startGame);
+  $('#checkBtn').addEventListener('click', checkAnswer);
+  $('#hintBtn').addEventListener('click', useHint);
+  $('#skipBtn').addEventListener('click', skipRound);
+  $('#restartBtn').addEventListener('click', startGame);
+  $('#shareBtn').addEventListener('click', share);
+  $('#answerInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      checkAnswer();
+    }
+  });
+
+  // Welcome counter
+  $('#totalRounds').textContent = TOTAL_ROUNDS;
+</script>
+</body>
+</html>

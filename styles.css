@@ -461,6 +461,10 @@ html[data-vibe-level="1"] .hero-copy h1 .title-ombre {
   margin-top: 2rem;
 }
 
+.button-group--card {
+  margin-top: 1rem;
+}
+
 .btn {
   text-decoration: none;
   font-weight: 600;
@@ -574,31 +578,37 @@ html[data-vibe-level="1"] .hero-copy h1 .title-ombre {
 }
 
 #skills .card,
+#what-works .card,
 #projects .card {
   animation: card-rise 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 #skills .card:nth-child(2n),
+#what-works .card:nth-child(2n),
 #projects .card:nth-child(2n) {
   animation-name: card-rise-alt;
 }
 
 #skills .card:nth-child(1),
+#what-works .card:nth-child(1),
 #projects .card:nth-child(1) {
   animation-delay: 0.05s;
 }
 
 #skills .card:nth-child(2),
+#what-works .card:nth-child(2),
 #projects .card:nth-child(2) {
   animation-delay: 0.11s;
 }
 
 #skills .card:nth-child(3),
+#what-works .card:nth-child(3),
 #projects .card:nth-child(3) {
   animation-delay: 0.17s;
 }
 
 #skills .card:nth-child(4),
+#what-works .card:nth-child(4),
 #projects .card:nth-child(4) {
   animation-delay: 0.23s;
 }
@@ -612,6 +622,7 @@ html[data-vibe-level="1"] .hero-copy h1 .title-ombre {
 }
 
 #skills .card:hover,
+#what-works .card:hover,
 #projects .card:hover {
   border-color: rgba(0, 240, 255, 0.38);
   box-shadow:
@@ -632,6 +643,26 @@ html[data-vibe-level="1"] .hero-copy h1 .title-ombre {
   margin-top: 0.8rem;
   color: #9ec8e8;
   font-size: 0.96rem;
+}
+
+.project-preview {
+  margin: 0 0 1.05rem;
+  border-radius: 2px 18px 2px 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+
+.project-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+#what-works .project--with-preview .project-preview {
+  margin-top: -0.15rem;
 }
 
 .split-list,
@@ -725,6 +756,13 @@ html[data-vibe-level="1"] .hero-copy h1 .title-ombre {
   text-shadow: 0 0 28px rgba(0, 240, 255, 0.12);
 }
 
+.what-works-section {
+  border-block: 1px solid rgba(0, 240, 255, 0.1);
+  background:
+    linear-gradient(165deg, rgba(0, 240, 255, 0.06), transparent 55%),
+    linear-gradient(340deg, rgba(255, 45, 158, 0.05), transparent 50%);
+}
+
 .cta {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -779,12 +817,14 @@ footer {
   }
 
   #skills .card:nth-child(2n),
+  #what-works .card:nth-child(2n),
   #projects .card:nth-child(2n) {
     transform: none;
     animation-name: card-rise;
   }
 
   html.js-reveal #skills.is-visible .card:nth-child(even),
+  html.js-reveal #what-works.is-visible .card:nth-child(even),
   html.js-reveal #projects.is-visible .card:nth-child(even) {
     transform: translateY(0) rotate(0deg);
   }
@@ -793,6 +833,7 @@ footer {
 /* Скролл-ревил: заметно при прокрутке (класс ставит vibe.js) */
 @media (prefers-reduced-motion: no-preference) {
   html.js-reveal #skills .card,
+  html.js-reveal #what-works .card,
   html.js-reveal #projects .card {
     animation: none;
     opacity: 0;
@@ -805,37 +846,44 @@ footer {
   }
 
   html.js-reveal #skills.is-visible .card,
+  html.js-reveal #what-works.is-visible .card,
   html.js-reveal #projects.is-visible .card {
     opacity: 1;
     filter: blur(0);
   }
 
   html.js-reveal #skills.is-visible .card:nth-child(odd),
+  html.js-reveal #what-works.is-visible .card:nth-child(odd),
   html.js-reveal #projects.is-visible .card:nth-child(odd) {
     transform: translateY(0) rotate(0deg);
   }
 
   html.js-reveal #skills.is-visible .card:nth-child(even),
+  html.js-reveal #what-works.is-visible .card:nth-child(even),
   html.js-reveal #projects.is-visible .card:nth-child(even) {
     transform: translateY(1.2rem) rotate(0deg);
   }
 
   html.js-reveal #skills.is-visible .card:nth-child(1),
+  html.js-reveal #what-works.is-visible .card:nth-child(1),
   html.js-reveal #projects.is-visible .card:nth-child(1) {
     transition-delay: 0.08s;
   }
 
   html.js-reveal #skills.is-visible .card:nth-child(2),
+  html.js-reveal #what-works.is-visible .card:nth-child(2),
   html.js-reveal #projects.is-visible .card:nth-child(2) {
     transition-delay: 0.14s;
   }
 
   html.js-reveal #skills.is-visible .card:nth-child(3),
+  html.js-reveal #what-works.is-visible .card:nth-child(3),
   html.js-reveal #projects.is-visible .card:nth-child(3) {
     transition-delay: 0.2s;
   }
 
   html.js-reveal #skills.is-visible .card:nth-child(4),
+  html.js-reveal #what-works.is-visible .card:nth-child(4),
   html.js-reveal #projects.is-visible .card:nth-child(4) {
     transition-delay: 0.26s;
   }
