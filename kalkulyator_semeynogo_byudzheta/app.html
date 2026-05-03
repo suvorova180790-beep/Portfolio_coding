@@ -1,0 +1,4159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Приложение — Семейный бюджет</title>
+  <meta name="theme-color" content="#2563eb" />
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --bg-soft: #edf3fb;
+      --card: #ffffff;
+      --card-2: #f8fbff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #d8e1ee;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --purple: #7c3aed;
+      --cyan: #0891b2;
+      --pink: #db2777;
+      --shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+      --radius: 18px;
+    }
+
+    body.dark {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --card: #1f2937;
+      --card-2: #172033;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --border: #334155;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+      --cyan: #06b6d4;
+      --pink: #ec4899;
+      --shadow: 0 16px 34px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    body { padding: 16px; }
+
+    .app {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .header h1 {
+      margin: 0 0 6px;
+      font-size: 34px;
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+      max-width: 980px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 15px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .section-title {
+      margin: 0 0 14px;
+      font-size: 22px;
+    }
+
+    .sub-title {
+      margin: 0 0 12px;
+      font-size: 17px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .kpi {
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .kpi-label {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: bold;
+      word-break: break-word;
+    }
+
+    /* KPI на дашборде: emoji, кнопки «иконка» / «раскрыть» */
+    .pointer {
+      cursor: pointer;
+    }
+
+    .kpi-interactive {
+      position: relative;
+    }
+
+    .kpi-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .kpi-emoji {
+      font-size: 22px;
+      line-height: 1.2;
+      flex-shrink: 0;
+    }
+
+    .kpi-title-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .kpi-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .kpi-action-btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kpi-action-btn:hover {
+      background: var(--card-2);
+      border-color: var(--primary);
+    }
+
+    .kpi-chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+    }
+
+    .kpi-action-btn[aria-expanded="true"] .kpi-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Панели под KPI: список активных целей/долгов */
+    .dashboard-panel {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card-2);
+    }
+
+    .dashboard-panel-head {
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    .dashboard-panel-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dashboard-panel-row:last-child {
+      border-bottom: none;
+    }
+
+    /* Список иконок в настройках */
+    .dashboard-icon-setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dashboard-icon-setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .dashboard-icon-setting-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .dashboard-icon-setting-preview {
+      font-size: 24px;
+      line-height: 1;
+      width: 40px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .dashboard-icon-setting-label {
+      font-size: 15px;
+    }
+
+    /* Модальное окно выбора иконки KPI (emoji) */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay[hidden] {
+      display: none !important;
+    }
+
+    /* Карточка модалки: клик по содержимому не закрывает окно (закрытие — по фону и кнопкам) */
+    .modal-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 22px;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .modal-box h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .modal-caption {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0 0 14px;
+    }
+
+    .success-text { color: var(--success); }
+    .danger-text { color: var(--danger); }
+    .primary-text { color: var(--primary); }
+    .purple-text { color: var(--purple); }
+    .warning-text { color: var(--warning); }
+    .cyan-text { color: var(--cyan); }
+
+    .status-box {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-weight: bold;
+      border: 1px solid transparent;
+    }
+
+    .status-good {
+      background: rgba(22,163,74,0.12);
+      color: #166534;
+      border-color: rgba(22,163,74,0.22);
+    }
+
+    .status-normal {
+      background: rgba(217,119,6,0.12);
+      color: #92400e;
+      border-color: rgba(217,119,6,0.22);
+    }
+
+    .status-bad {
+      background: rgba(220,38,38,0.12);
+      color: #991b1b;
+      border-color: rgba(220,38,38,0.22);
+    }
+
+    body.dark .status-good { color: #bbf7d0; }
+    body.dark .status-normal { color: #fde68a; }
+    body.dark .status-bad { color: #fecaca; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    .field label {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: 0.2s ease;
+    }
+
+    .field textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.14);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button, .fake-button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-warning { background: var(--warning); color: #fff; }
+    .btn-purple { background: var(--purple); color: #fff; }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    body.dark .btn-secondary {
+      background: #334155;
+      color: #f3f4f6;
+    }
+
+    .btn-small {
+      padding: 8px 11px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 12px 10px;
+      text-align: left;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    th {
+      background: rgba(127,127,127,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .badge-income {
+      background: rgba(22,163,74,0.14);
+      color: var(--success);
+    }
+
+    .badge-expense {
+      background: rgba(220,38,38,0.14);
+      color: var(--danger);
+    }
+
+    .badge-transfer {
+      background: rgba(8,145,178,0.14);
+      color: var(--cyan);
+    }
+
+    .badge-goal {
+      background: rgba(124,58,237,0.14);
+      color: var(--purple);
+    }
+
+    .badge-debt {
+      background: rgba(217,119,6,0.14);
+      color: var(--warning);
+    }
+
+    .chart-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      background: var(--card-2);
+    }
+
+    .chart-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      display: block;
+      background: transparent;
+      border-radius: 12px;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .tips {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      background: var(--card-2);
+    }
+
+    .tips h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .tips ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .tips li {
+      margin-bottom: 8px;
+      line-height: 1.45;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    .empty-state {
+      color: var(--muted);
+      padding: 20px;
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+    }
+
+    .calendar-weekday {
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .calendar-day {
+      min-height: 118px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card-2);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .calendar-day.muted { opacity: 0.45; }
+    .calendar-day.today { outline: 2px solid var(--primary); }
+
+    .calendar-day-number {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .calendar-amount {
+      font-size: 12px;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+
+    .calendar-list {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .account-card {
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .danger-row {
+      background: rgba(220,38,38,0.08);
+    }
+
+    .warning-row {
+      background: rgba(217,119,6,0.08);
+    }
+
+    .right-align { text-align: right; }
+    .hidden-input { display: none; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-20 { margin-top: 20px; }
+
+    @media (max-width: 1280px) {
+      .grid-2, .grid-3, .grid-4, .grid-5 {
+        grid-template-columns: 1fr;
+      }
+
+      .filters {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 860px) {
+      .form-grid,
+      .legend,
+      .filters,
+      .calendar-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 { font-size: 28px; }
+
+      .calendar-day { min-height: auto; }
+      table { min-width: 820px; }
+    }
+
+    @media print {
+      body {
+        background: #fff !important;
+        padding: 0;
+      }
+
+      .tabs,
+      .actions,
+      .btn-row,
+      .no-print,
+      button,
+      input,
+      select,
+      textarea {
+        display: none !important;
+      }
+
+      .tab-content { display: block !important; }
+
+      .card,
+      .chart-card {
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div>
+        <h1 data-i18n="h1_app">Ultimate Family Budget Pro</h1>
+        <div class="subtitle" data-i18n="sub_title">
+          Версия с несколькими счетами, переводами, лимитами категорий, перерасходом, редактированием операций,
+          целей и долгов, календарём, годовыми отчётами и прогнозом.
+        </div>
+      </div>
+
+      <div class="actions no-print">
+        <a href="index.html" class="btn-secondary" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;" data-i18n="btn_home">← На главную</a>
+        <button type="button" class="btn-secondary" data-action="toggle-theme" data-i18n="btn_theme">Сменить тему</button>
+        <button type="button" class="btn-secondary" data-action="print-page" data-i18n="btn_print">Печать / PDF</button>
+        <button type="button" class="btn-warning" data-action="export-csv" data-i18n="btn_export_csv">Экспорт CSV</button>
+        <button type="button" class="btn-secondary" data-action="export-json" data-i18n="btn_export_json">Экспорт JSON</button>
+        <label class="btn-secondary fake-button" style="display:inline-flex; align-items:center; justify-content:center;">
+          <span data-i18n="btn_import_json">Импорт JSON</span>
+          <input class="hidden-input" type="file" accept=".json" onchange="importJSON(event)">
+        </label>
+        <button type="button" class="btn-danger" data-action="reset-all-data" data-i18n="btn_reset_all">Сбросить всё</button>
+      </div>
+    </div>
+
+    <div class="tabs no-print">
+      <button type="button" class="tab-btn active" data-tab-id="dashboard" data-i18n="tab_dashboard">Dashboard</button>
+      <button type="button" class="tab-btn" data-tab-id="operations" data-i18n="tab_operations">Операции</button>
+      <button type="button" class="tab-btn" data-tab-id="accounts" data-i18n="tab_accounts">Счета и переводы</button>
+      <button type="button" class="tab-btn" data-tab-id="budgets" data-i18n="tab_budgets">Лимиты категорий</button>
+      <button type="button" class="tab-btn" data-tab-id="calendar" data-i18n="tab_calendar">Календарь</button>
+      <button type="button" class="tab-btn" data-tab-id="goals" data-i18n="tab_goals">Цели</button>
+      <button type="button" class="tab-btn" data-tab-id="debts" data-i18n="tab_debts">Долги</button>
+      <button type="button" class="tab-btn" data-tab-id="reports" data-i18n="tab_reports">Отчёты</button>
+      <button type="button" class="tab-btn" data-tab-id="settings" data-i18n="tab_settings">Настройки</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="tab-content active">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title" data-i18n="dash_month_summary">Сводка по выбранному месяцу</h2>
+
+          <div class="grid-4 no-print">
+            <div class="field">
+              <label for="dashboardMonth" data-i18n="lbl_month">Месяц</label>
+              <select id="dashboardMonth" onchange="refreshAll()"></select>
+            </div>
+            <div class="field">
+              <label for="dashboardYear" data-i18n="lbl_year">Год</label>
+              <input type="number" id="dashboardYear" min="2000" max="2100" onchange="refreshAll()" />
+            </div>
+            <div class="field">
+              <label for="reservePercent" data-i18n="lbl_reserve_pct">Резерв, %</label>
+              <input type="number" id="reservePercent" min="0" step="1" value="10" oninput="saveSettings(); refreshAll();" />
+            </div>
+            <div class="field">
+              <label for="currencySymbol" data-i18n="lbl_currency">Валюта</label>
+              <input type="text" id="currencySymbol" value="₽" maxlength="5" oninput="saveSettings(); refreshAll();" />
+            </div>
+          </div>
+
+          <div class="grid-4 mt-16">
+            <!-- KPI: доходы — emoji; правка иконки в «Настройки → Иконки дашборда»; клик по карточке — «Операции» -->
+            <div class="kpi kpi-interactive pointer" role="button" tabindex="0" data-tab-id="operations">
+              <div class="kpi-row">
+                <span class="kpi-emoji" data-dash-icon="income" aria-hidden="true"></span>
+                <div class="kpi-title-wrap">
+                  <div class="kpi-label" data-i18n="kpi_income">Доходы</div>
+                </div>
+              </div>
+              <div class="kpi-value success-text" id="kpiIncome">0 ₽</div>
+            </div>
+            <!-- KPI: расходы -->
+            <div class="kpi kpi-interactive pointer" role="button" tabindex="0" data-tab-id="operations">
+              <div class="kpi-row">
+                <span class="kpi-emoji" data-dash-icon="expenses" aria-hidden="true"></span>
+                <div class="kpi-title-wrap">
+                  <div class="kpi-label" data-i18n="kpi_expenses">Расходы</div>
+                </div>
+              </div>
+              <div class="kpi-value danger-text" id="kpiExpenses">0 ₽</div>
+            </div>
+            <!-- KPI: остаток -->
+            <div class="kpi kpi-interactive pointer" role="button" tabindex="0" data-tab-id="operations">
+              <div class="kpi-row">
+                <span class="kpi-emoji" data-dash-icon="balance" aria-hidden="true"></span>
+                <div class="kpi-title-wrap">
+                  <div class="kpi-label" data-i18n="kpi_balance">Остаток</div>
+                </div>
+              </div>
+              <div class="kpi-value primary-text" id="kpiBalance">0 ₽</div>
+            </div>
+            <!-- KPI: резерв -->
+            <div class="kpi kpi-interactive pointer" role="button" tabindex="0" data-tab-id="settings">
+              <div class="kpi-row">
+                <span class="kpi-emoji" data-dash-icon="reserve" aria-hidden="true"></span>
+                <div class="kpi-title-wrap">
+                  <div class="kpi-label" data-i18n="kpi_reserve">Резерв</div>
+                </div>
+              </div>
+              <div class="kpi-value purple-text" id="kpiReserve">0 ₽</div>
+            </div>
+
+            <!-- KPI: число операций -->
+            <div class="kpi kpi-interactive pointer" role="button" tabindex="0" data-tab-id="operations">
+              <div class="kpi-row">
+                <span class="kpi-emoji" data-dash-icon="operations" aria-hidden="true"></span>
+                <div class="kpi-title-wrap">
+                  <div class="kpi-label" data-i18n="kpi_operations">Операций</div>
+                </div>
+              </div>
+              <div class="kpi-value" id="kpiOperations">0</div>
+            </div>
+            <!-- KPI: доля расходов от дохода -->
+            <div class="kpi kpi-interactive pointer" role="button" tabindex="0" data-tab-id="budgets">
+              <div class="kpi-row">
+                <span class="kpi-emoji" data-dash-icon="expensePercent" aria-hidden="true"></span>
+                <div class="kpi-title-wrap">
+                  <div class="kpi-label" data-i18n="kpi_expense_pct">Расходы от дохода</div>
+                </div>
+              </div>
+              <div class="kpi-value" id="kpiExpensePercent">0%</div>
+            </div>
+            <!-- KPI: сумма на счетах -->
+            <div class="kpi kpi-interactive pointer" role="button" tabindex="0" data-tab-id="accounts">
+              <div class="kpi-row">
+                <span class="kpi-emoji" data-dash-icon="accountsTotal" aria-hidden="true"></span>
+                <div class="kpi-title-wrap">
+                  <div class="kpi-label" data-i18n="kpi_accounts_total">Всего на счетах</div>
+                </div>
+              </div>
+              <div class="kpi-value cyan-text" id="kpiAccountsTotal">0 ₽</div>
+            </div>
+            <!-- KPI: перерасход категорий -->
+            <div class="kpi kpi-interactive pointer" role="button" tabindex="0" data-tab-id="budgets">
+              <div class="kpi-row">
+                <span class="kpi-emoji" data-dash-icon="overspent" aria-hidden="true"></span>
+                <div class="kpi-title-wrap">
+                  <div class="kpi-label" data-i18n="kpi_overspent">Перерасход категорий</div>
+                </div>
+              </div>
+              <div class="kpi-value warning-text" id="kpiOverspent">0</div>
+            </div>
+            <!-- KPI «Активные цели»: ▼ — список; иконка — в настройках -->
+            <div class="kpi kpi-interactive pointer" role="button" tabindex="0" data-tab-id="goals">
+              <div class="kpi-row">
+                <span class="kpi-emoji" data-dash-icon="goals" aria-hidden="true"></span>
+                <div class="kpi-title-wrap">
+                  <div class="kpi-label" data-i18n="kpi_active_goals">Активные цели</div>
+                </div>
+                <div class="kpi-actions no-print">
+                  <button type="button" class="kpi-action-btn" data-action="toggle-dashboard-panel" data-panel="goals" data-i18n-title="kpi_show_goals" data-i18n-aria="kpi_show_goals" title="Показать список целей" aria-label="Показать список целей" aria-expanded="false">
+                    <span class="kpi-chevron" aria-hidden="true">▼</span>
+                  </button>
+                </div>
+              </div>
+              <div class="kpi-value purple-text" id="kpiActiveGoals">0</div>
+            </div>
+            <!-- KPI «Активные долги» -->
+            <div class="kpi kpi-interactive pointer" role="button" tabindex="0" data-tab-id="debts">
+              <div class="kpi-row">
+                <span class="kpi-emoji" data-dash-icon="debts" aria-hidden="true"></span>
+                <div class="kpi-title-wrap">
+                  <div class="kpi-label" data-i18n="kpi_active_debts">Активные долги</div>
+                </div>
+                <div class="kpi-actions no-print">
+                  <button type="button" class="kpi-action-btn" data-action="toggle-dashboard-panel" data-panel="debts" data-i18n-title="kpi_show_debts" data-i18n-aria="kpi_show_debts" title="Показать список долгов" aria-label="Показать список долгов" aria-expanded="false">
+                    <span class="kpi-chevron" aria-hidden="true">▼</span>
+                  </button>
+                </div>
+              </div>
+              <div class="kpi-value warning-text" id="kpiActiveDebts">0</div>
+            </div>
+          </div>
+
+          <!-- Раскрывающиеся панели под сеткой KPI: активные цели и долги с переходом к редактированию -->
+          <div id="dashboardPanelGoals" class="dashboard-panel no-print" hidden>
+            <div class="dashboard-panel-head" data-i18n="dash_panel_goals_title">Список активных целей</div>
+            <div id="dashboardPanelGoalsBody"></div>
+          </div>
+          <div id="dashboardPanelDebts" class="dashboard-panel no-print" hidden>
+            <div class="dashboard-panel-head" data-i18n="dash_panel_debts_title">Список активных долгов</div>
+            <div id="dashboardPanelDebtsBody"></div>
+          </div>
+
+          <div id="budgetStatus" class="status-box status-normal mt-16" data-i18n="budget_status_hint">
+            Добавьте операции, счета и лимиты, чтобы увидеть полный анализ бюджета.
+          </div>
+
+          <div class="tips">
+            <h3 data-i18n="tips_title">Рекомендации и предупреждения</h3>
+            <ul id="tipsList">
+              <li data-i18n="tips_default">После добавления данных здесь появится автоматический анализ бюджета.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title" data-i18n="analytics_title">Аналитика</h2>
+
+          <div class="chart-card">
+            <div class="chart-title" data-i18n="chart_expense_structure">Структура расходов</div>
+            <canvas id="expensePieChart" width="760" height="360"></canvas>
+            <div class="legend" id="expenseLegend"></div>
+          </div>
+
+          <div class="chart-card mt-20">
+            <div class="chart-title" data-i18n="chart_monthly_ie">Доходы и расходы по месяцам</div>
+            <canvas id="monthlyBarChart" width="760" height="320"></canvas>
+          </div>
+
+          <div class="chart-card mt-20">
+            <div class="chart-title" data-i18n="chart_forecast_title">Прогноз следующего месяца</div>
+            <div class="grid-3">
+              <div class="kpi">
+                <div class="kpi-label" data-i18n="forecast_income">Прогноз дохода</div>
+                <div class="kpi-value success-text" id="forecastIncome">0 ₽</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label" data-i18n="forecast_expense">Прогноз расхода</div>
+                <div class="kpi-value danger-text" id="forecastExpense">0 ₽</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label" data-i18n="forecast_balance">Прогноз остатка</div>
+                <div class="kpi-value primary-text" id="forecastBalance">0 ₽</div>
+              </div>
+            </div>
+            <div class="small-note" id="forecastNote" data-i18n="forecast_note_default">
+              Прогноз строится по среднему значению последних месяцев.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPERATIONS -->
+    <div id="operations" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title" data-i18n="op_form_title">Добавить / редактировать операцию</h2>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="opDate" data-i18n="lbl_date">Дата</label>
+              <input type="date" id="opDate" />
+            </div>
+
+            <div class="field">
+              <label for="opType" data-i18n="lbl_type">Тип</label>
+              <select id="opType" onchange="populateCategorySelect()">
+                <option value="income" data-i18n-opt="op_income">Доход</option>
+                <option value="expense" data-i18n-opt="op_expense">Расход</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="opAccount" data-i18n="lbl_account">Счёт</label>
+              <select id="opAccount"></select>
+            </div>
+
+            <div class="field">
+              <label for="opCategory" data-i18n="lbl_category">Категория</label>
+              <select id="opCategory"></select>
+            </div>
+
+            <div class="field">
+              <label for="opAmount" data-i18n="lbl_amount">Сумма</label>
+              <input type="number" id="opAmount" min="0" step="0.01" />
+            </div>
+
+            <div class="field full">
+              <label for="opDescription" data-i18n="lbl_description">Описание</label>
+              <input type="text" id="opDescription" data-i18n-placeholder="ph_op_description" placeholder="Например: зарплата, аренда, продукты" />
+            </div>
+          </div>
+
+          <input type="hidden" id="editingOperationId" />
+
+          <div class="btn-row">
+            <button type="button" class="btn-primary" data-action="save-operation" data-i18n="btn_save_operation">Сохранить операцию</button>
+            <button type="button" class="btn-secondary" data-action="reset-operation-form" data-i18n="btn_clear_form">Очистить форму</button>
+            <button type="button" class="btn-secondary" data-action="fill-demo-data" data-i18n="btn_demo_data">Заполнить демо-данными</button>
+          </div>
+
+          <div class="small-note" data-i18n="op_note_accounts">
+            Для расходов и доходов можно выбрать счёт, к которому относится операция.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title" data-i18n="op_list_title">Список операций</h2>
+
+          <div class="filters no-print">
+            <div class="field">
+              <label for="filterMonth" data-i18n="lbl_month">Месяц</label>
+              <select id="filterMonth" onchange="renderOperationsTable()"></select>
+            </div>
+
+            <div class="field">
+              <label for="filterYear" data-i18n="lbl_year">Год</label>
+              <input type="number" id="filterYear" min="2000" max="2100" onchange="renderOperationsTable()" />
+            </div>
+
+            <div class="field">
+              <label for="filterType" data-i18n="lbl_type">Тип</label>
+              <select id="filterType" onchange="renderOperationsTable()">
+                <option value="all" data-i18n-opt="filter_all">Все</option>
+                <option value="income" data-i18n-opt="filter_income_only">Только доходы</option>
+                <option value="expense" data-i18n-opt="filter_expense_only">Только расходы</option>
+                <option value="transfer" data-i18n-opt="filter_transfer_only">Только переводы</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="filterCategory" data-i18n="lbl_category">Категория</label>
+              <input type="text" id="filterCategory" data-i18n-placeholder="ph_filter_category" placeholder="Поиск категории" oninput="renderOperationsTable()" />
+            </div>
+
+            <div class="field">
+              <label for="filterSearch" data-i18n="lbl_search">Поиск</label>
+              <input type="text" id="filterSearch" data-i18n-placeholder="ph_filter_search" placeholder="Поиск по описанию" oninput="renderOperationsTable()" />
+            </div>
+
+            <div class="field">
+              <label for="sortOperations" data-i18n="lbl_sort">Сортировка</label>
+              <select id="sortOperations" onchange="renderOperationsTable()">
+                <option value="date_desc" data-i18n-opt="sort_date_desc">Сначала новые</option>
+                <option value="date_asc" data-i18n-opt="sort_date_asc">Сначала старые</option>
+                <option value="amount_desc" data-i18n-opt="sort_amount_desc">Сумма ↓</option>
+                <option value="amount_asc" data-i18n-opt="sort_amount_asc">Сумма ↑</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="lbl_date">Дата</th>
+                  <th data-i18n="lbl_type">Тип</th>
+                  <th data-i18n="lbl_account">Счёт</th>
+                  <th data-i18n="lbl_category">Категория</th>
+                  <th data-i18n="lbl_description">Описание</th>
+                  <th data-i18n="lbl_amount">Сумма</th>
+                  <th class="no-print" data-i18n="th_actions">Действия</th>
+                </tr>
+              </thead>
+              <tbody id="operationsTableBody">
+                <tr><td colspan="7" data-i18n="op_table_empty">Операции пока не добавлены.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNTS -->
+    <div id="accounts" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title" data-i18n="accounts_title">Счета</h2>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="accountName" data-i18n="lbl_account_name">Название счёта</label>
+              <input type="text" id="accountName" data-i18n-placeholder="ph_account_name" placeholder="Например: Наличные, Карта, Вклад" />
+            </div>
+            <div class="field">
+              <label for="accountBalance" data-i18n="lbl_initial_balance">Начальный баланс</label>
+              <input type="number" id="accountBalance" min="0" step="0.01" />
+            </div>
+          </div>
+
+          <input type="hidden" id="editingAccountId" />
+
+          <div class="btn-row">
+            <button type="button" class="btn-primary" data-action="save-account" data-i18n="btn_save_account">Сохранить счёт</button>
+            <button type="button" class="btn-secondary" data-action="reset-account-form" data-i18n="btn_clear_short">Очистить</button>
+          </div>
+
+          <div class="mt-20" id="accountsList"></div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title" data-i18n="transfer_title">Перевод между счетами</h2>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="transferDate" data-i18n="lbl_date">Дата</label>
+              <input type="date" id="transferDate" />
+            </div>
+            <div class="field">
+              <label for="transferAmount" data-i18n="lbl_amount">Сумма</label>
+              <input type="number" id="transferAmount" min="0" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="transferFrom" data-i18n="lbl_from_account">Со счёта</label>
+              <select id="transferFrom"></select>
+            </div>
+            <div class="field">
+              <label for="transferTo" data-i18n="lbl_to_account">На счёт</label>
+              <select id="transferTo"></select>
+            </div>
+            <div class="field full">
+              <label for="transferDescription" data-i18n="lbl_comment">Комментарий</label>
+              <input type="text" id="transferDescription" data-i18n-placeholder="ph_transfer" placeholder="Например: пополнение вклада" />
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn-purple" data-action="add-transfer" data-i18n="btn_do_transfer">Сделать перевод</button>
+          </div>
+
+          <div class="small-note" data-i18n="transfer_note">
+            Переводы не меняют общий бюджет семьи, но меняют остатки по конкретным счетам.
+          </div>
+
+          <div class="mt-20">
+            <h3 class="sub-title" data-i18n="account_summary_title">Сводка по счетам</h3>
+            <div class="grid-3" id="accountSummaryGrid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUDGETS -->
+    <div id="budgets" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title" data-i18n="budgets_form_title">Лимиты по категориям</h2>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="budgetMonth" data-i18n="lbl_month">Месяц</label>
+              <select id="budgetMonth"></select>
+            </div>
+            <div class="field">
+              <label for="budgetYear" data-i18n="lbl_year">Год</label>
+              <input type="number" id="budgetYear" min="2000" max="2100" />
+            </div>
+            <div class="field">
+              <label for="budgetCategory" data-i18n="lbl_category">Категория</label>
+              <select id="budgetCategory"></select>
+            </div>
+            <div class="field">
+              <label for="budgetLimit" data-i18n="lbl_limit">Лимит</label>
+              <input type="number" id="budgetLimit" min="0" step="0.01" />
+            </div>
+          </div>
+
+          <input type="hidden" id="editingBudgetId" />
+
+          <div class="btn-row">
+            <button type="button" class="btn-primary" data-action="save-category-budget" data-i18n="btn_save_limit">Сохранить лимит</button>
+            <button type="button" class="btn-secondary" data-action="reset-budget-form" data-i18n="btn_clear_short">Очистить</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title" data-i18n="budgets_table_title">Контроль лимитов</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="th_period">Период</th>
+                  <th data-i18n="lbl_category">Категория</th>
+                  <th data-i18n="th_limit">Лимит</th>
+                  <th data-i18n="th_actual">Факт</th>
+                  <th data-i18n="th_status">Статус</th>
+                  <th class="no-print" data-i18n="th_actions">Действия</th>
+                </tr>
+              </thead>
+              <tbody id="budgetsTableBody">
+                <tr><td colspan="6" data-i18n="budgets_empty">Лимиты пока не добавлены.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div id="calendar" class="tab-content">
+      <div class="card">
+        <h2 class="section-title" data-i18n="calendar_title">Календарь доходов и расходов по дням</h2>
+
+        <div class="grid-4 no-print">
+          <div class="field">
+            <label for="calendarMonth" data-i18n="lbl_month">Месяц</label>
+            <select id="calendarMonth" onchange="renderCalendar()"></select>
+          </div>
+          <div class="field">
+            <label for="calendarYear" data-i18n="lbl_year">Год</label>
+            <input type="number" id="calendarYear" min="2000" max="2100" onchange="renderCalendar()" />
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button type="button" class="btn-secondary" data-action="go-to-current-calendar-month" data-i18n="btn_current_month">Текущий месяц</button>
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button type="button" class="btn-secondary" data-action="refresh-all" data-i18n="btn_refresh">Обновить</button>
+          </div>
+        </div>
+
+        <div class="calendar-grid mt-16" id="calendarGrid"></div>
+      </div>
+    </div>
+
+    <!-- GOALS -->
+    <div id="goals" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title" data-i18n="goals_form_title">Добавить / редактировать цель</h2>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="goalName" data-i18n="lbl_goal_name">Название цели</label>
+              <input type="text" id="goalName" />
+            </div>
+            <div class="field">
+              <label for="goalTarget" data-i18n="lbl_goal_target">Целевая сумма</label>
+              <input type="number" id="goalTarget" min="0" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="goalCurrent" data-i18n="lbl_goal_current">Уже накоплено</label>
+              <input type="number" id="goalCurrent" min="0" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="goalDeadline" data-i18n="lbl_deadline">Срок</label>
+              <input type="date" id="goalDeadline" />
+            </div>
+            <div class="field full">
+              <label for="goalDescription" data-i18n="lbl_comment">Комментарий</label>
+              <textarea id="goalDescription"></textarea>
+            </div>
+          </div>
+
+          <input type="hidden" id="editingGoalId" />
+
+          <div class="btn-row">
+            <button type="button" class="btn-primary" data-action="save-goal" data-i18n="btn_save_goal">Сохранить цель</button>
+            <button type="button" class="btn-secondary" data-action="reset-goal-form" data-i18n="btn_clear_short">Очистить</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title" data-i18n="goals_list_title">Список целей</h2>
+          <div id="goalsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEBTS -->
+    <div id="debts" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title" data-i18n="debts_form_title">Добавить / редактировать долг</h2>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="debtName" data-i18n="lbl_name">Название</label>
+              <input type="text" id="debtName" />
+            </div>
+            <div class="field">
+              <label for="debtTotal" data-i18n="lbl_debt_total">Общая сумма</label>
+              <input type="number" id="debtTotal" min="0" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="debtRemaining" data-i18n="lbl_debt_remaining">Осталось выплатить</label>
+              <input type="number" id="debtRemaining" min="0" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="debtPayment" data-i18n="lbl_monthly_payment">Ежемесячный платёж</label>
+              <input type="number" id="debtPayment" min="0" step="0.01" />
+            </div>
+            <div class="field full">
+              <label for="debtDescription" data-i18n="lbl_comment">Комментарий</label>
+              <textarea id="debtDescription"></textarea>
+            </div>
+          </div>
+
+          <input type="hidden" id="editingDebtId" />
+
+          <div class="btn-row">
+            <button type="button" class="btn-primary" data-action="save-debt" data-i18n="btn_save_debt">Сохранить долг</button>
+            <button type="button" class="btn-secondary" data-action="reset-debt-form" data-i18n="btn_clear_short">Очистить</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title" data-i18n="debts_list_title">Список долгов</h2>
+          <div id="debtsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="reports" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title" data-i18n="report_annual_title">Годовой отчёт</h2>
+
+          <div class="grid-3 no-print">
+            <div class="field">
+              <label for="reportYear" data-i18n="lbl_year">Год</label>
+              <input type="number" id="reportYear" min="2000" max="2100" onchange="renderAnnualReport()" />
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button type="button" class="btn-secondary" data-action="set-current-report-year" data-i18n="btn_current_year">Текущий год</button>
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button type="button" class="btn-secondary" data-action="render-annual-report" data-i18n="btn_refresh">Обновить</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="lbl_month">Месяц</th>
+                  <th data-i18n="th_income_col">Доход</th>
+                  <th data-i18n="th_expense_col">Расход</th>
+                  <th data-i18n="th_balance_col">Остаток</th>
+                  <th data-i18n="th_expense_pct">Расходы, %</th>
+                  <th data-i18n="th_ops_count">Операций</th>
+                </tr>
+              </thead>
+              <tbody id="annualReportBody">
+                <tr><td colspan="6" data-i18n="report_no_data">Нет данных.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title" data-i18n="history_title">История по месяцам</h2>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="th_period">Период</th>
+                  <th data-i18n="th_income_col">Доход</th>
+                  <th data-i18n="th_expense_col">Расход</th>
+                  <th data-i18n="th_balance_col">Остаток</th>
+                  <th data-i18n="th_expense_pct">Расходы, %</th>
+                  <th data-i18n="th_reserve">Резерв</th>
+                  <th data-i18n="th_ops_count">Операций</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <tr><td colspan="7" data-i18n="history_empty">История пока пуста.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="settings" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title" data-i18n="settings_title">Настройки</h2>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="settingsReserve" data-i18n="lbl_default_reserve">Резерв по умолчанию, %</label>
+              <input type="number" id="settingsReserve" min="0" step="1" value="10" />
+            </div>
+            <div class="field">
+              <label for="settingsCurrency" data-i18n="lbl_currency_symbol">Символ валюты</label>
+              <input type="text" id="settingsCurrency" maxlength="5" value="₽" />
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn-primary" data-action="apply-settings" data-i18n="btn_apply">Применить</button>
+          </div>
+
+          <!-- Подраздел: все emoji KPI дашборда (редактирование через модальное окно) -->
+          <h3 class="sub-title mt-20" data-i18n="settings_icons_title">Иконки дашборда</h3>
+          <p class="small-note" style="margin-bottom:12px;" data-i18n="settings_icons_note">
+            Настройте emoji для каждого блока сводки на вкладке Dashboard. Кнопка «Изменить» открывает окно ввода (до 3 символов).
+          </p>
+          <div id="dashboardIconsSettingsList" class="no-print"></div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title" data-i18n="settings_features_title">Что умеет эта версия</h2>
+          <div class="small-note" data-i18n-html="settings_features_body">
+            1. Операции доходов, расходов и переводов.<br><br>
+            2. Несколько счетов с расчётом остатка.<br><br>
+            3. Лимиты по категориям и выявление перерасхода.<br><br>
+            4. Редактирование операций, целей, долгов, счетов и бюджетов.<br><br>
+            5. Календарь, отчёты, прогноз и экспорт данных.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно: редактирование emoji-иконки любого KPI на дашборде (данные в settings.dashboardIcons) -->
+  <div id="dashboardIconModal" class="modal-overlay no-print" hidden role="dialog" aria-modal="true" aria-labelledby="dashboardIconModalTitle">
+    <div class="modal-box">
+      <h3 id="dashboardIconModalTitle" data-i18n="modal_icon_title">Иконка блока</h3>
+      <p id="dashboardIconModalCaption" class="modal-caption"></p>
+      <div class="field">
+        <label for="dashboardIconModalInput" data-i18n="lbl_emoji_input">Emoji или до 3 символов</label>
+        <input type="text" id="dashboardIconModalInput" maxlength="8" autocomplete="off" data-i18n-placeholder="ph_emoji" placeholder="Например: 📊" />
+      </div>
+      <p class="small-note" style="margin-top:10px;" data-i18n="modal_icon_hint">Очистите поле и нажмите «Сохранить» или «По умолчанию», чтобы вернуть стандартную иконку.</p>
+      <div class="btn-row" style="margin-top:16px;">
+        <button type="button" class="btn-primary" data-action="dashboard-icon-modal-save" data-i18n="btn_save">Сохранить</button>
+        <button type="button" class="btn-secondary" data-action="dashboard-icon-modal-reset" data-i18n="btn_default">По умолчанию</button>
+        <button type="button" class="btn-secondary" data-action="dashboard-icon-modal-cancel" data-i18n="btn_cancel">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app-i18n.js"></script>
+  <script>
+    const t = k => AppI18n.t(k);
+    const tf = (k, v) => AppI18n.tf(k, v);
+
+    /*
+      ============================================================
+      ULTIMATE FAMILY BUDGET PRO
+      ============================================================
+      Что хранится в state:
+      - settings: настройки приложения
+      - accounts: счета семьи
+      - operations: доходы, расходы, переводы
+      - categoryBudgets: лимиты категорий по месяцам
+      - goals: финансовые цели
+      - debts: долги и кредиты
+
+      Типы операций:
+      - income
+      - expense
+      - transfer
+    */
+
+    const STORAGE_KEY = "ultimateFamilyBudgetProData";
+
+    const MONTHS_RU = [
+      "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+      "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+    ];
+    const MONTHS_EN = AppI18n.MONTHS_EN;
+    const WEEK_DAYS_RU = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+    function getMonthsLocalized() {
+      return AppI18n.getLang() === "en" ? MONTHS_EN : MONTHS_RU;
+    }
+
+    function getWeekDays() {
+      return AppI18n.getLang() === "en" ? AppI18n.WEEK_DAYS_EN : WEEK_DAYS_RU;
+    }
+
+    function localizeMonthFromRu(ru) {
+      const i = MONTHS_RU.indexOf(ru);
+      if (i < 0) return ru;
+      return getMonthsLocalized()[i];
+    }
+
+    function formatPeriodRuForDisplay(periodRuAndYear) {
+      const last = periodRuAndYear.lastIndexOf(" ");
+      if (last < 0) return periodRuAndYear;
+      const ruMonth = periodRuAndYear.slice(0, last);
+      const y = periodRuAndYear.slice(last + 1);
+      return `${localizeMonthFromRu(ruMonth)} ${y}`;
+    }
+
+    function shortMonthForChart(ruMonth) {
+      const i = MONTHS_RU.indexOf(ruMonth);
+      if (i < 0) return String(ruMonth).slice(0, 3);
+      return getMonthsLocalized()[i].slice(0, 3);
+    }
+
+    function dashboardIconLabel(key) {
+      const map = {
+        income: "dash_income",
+        expenses: "dash_expenses",
+        balance: "dash_balance",
+        reserve: "dash_reserve",
+        operations: "dash_operations",
+        expensePercent: "dash_expensePercent",
+        accountsTotal: "dash_accountsTotal",
+        overspent: "dash_overspent",
+        goals: "dash_goals",
+        debts: "dash_debts"
+      };
+      const id = map[key];
+      return id ? t(id) : key;
+    }
+
+    function applyAppStaticI18n() {
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const k = el.getAttribute("data-i18n");
+        if (el.hasAttribute("data-i18n-html")) el.innerHTML = t(k);
+        else el.textContent = t(k);
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        el.setAttribute("placeholder", t(el.getAttribute("data-i18n-placeholder")));
+      });
+      document.querySelectorAll("[data-i18n-title]").forEach(el => {
+        el.setAttribute("title", t(el.getAttribute("data-i18n-title")));
+        const ak = el.getAttribute("data-i18n-aria");
+        if (ak) el.setAttribute("aria-label", t(ak));
+      });
+      document.querySelectorAll("[data-i18n-opt]").forEach(el => {
+        el.textContent = t(el.getAttribute("data-i18n-opt"));
+      });
+      document.title = t("docTitle");
+    }
+
+    const INCOME_CATEGORIES = [
+      "Зарплата",
+      "Подработка",
+      "Премия",
+      "Пособие",
+      "Аренда",
+      "Инвестиции",
+      "Подарок",
+      "Прочий доход"
+    ];
+
+    const EXPENSE_CATEGORIES = [
+      "Жильё",
+      "Коммунальные",
+      "Кредиты",
+      "Транспорт",
+      "Образование",
+      "Медицина",
+      "Продукты",
+      "Дети",
+      "Развлечения",
+      "Покупки",
+      "Подарки",
+      "Путешествия",
+      "Ремонт",
+      "Прочие расходы"
+    ];
+
+    function displayCategoryLabel(cat) {
+      if (!cat) return "—";
+      if (cat === "Перевод") return t("badge_transfer");
+      let i = EXPENSE_CATEGORIES.indexOf(cat);
+      if (i >= 0) return AppI18n.getLang() === "en" ? AppI18n.EXPENSE_CATEGORIES_EN[i] : cat;
+      i = INCOME_CATEGORIES.indexOf(cat);
+      if (i >= 0) return AppI18n.getLang() === "en" ? AppI18n.INCOME_CATEGORIES_EN[i] : cat;
+      return cat;
+    }
+
+    const CHART_COLORS = [
+      "#16a34a", "#2563eb", "#dc2626", "#d97706",
+      "#7c3aed", "#0891b2", "#db2777", "#0f766e",
+      "#ea580c", "#4f46e5", "#65a30d", "#be185d"
+    ];
+
+    const DASHBOARD_ICON_DEFAULTS = {
+      income: "📥",
+      expenses: "📤",
+      balance: "⚖️",
+      reserve: "🛡️",
+      operations: "📋",
+      expensePercent: "📊",
+      accountsTotal: "🏦",
+      overspent: "⚠️",
+      goals: "🎯",
+      debts: "💳"
+    };
+
+    /** Порядок строк в настройках «Иконки дашборда» */
+    const DASHBOARD_ICON_KEYS_ORDER = [
+      "income",
+      "expenses",
+      "balance",
+      "reserve",
+      "operations",
+      "expensePercent",
+      "accountsTotal",
+      "overspent",
+      "goals",
+      "debts"
+    ];
+
+    let dashboardIconModalKey = null;
+
+    let state = {
+      settings: {
+        reservePercent: 10,
+        currencySymbol: "₽",
+        darkTheme: false,
+        dashboardIcons: {}
+      },
+      accounts: [
+        { id: "acc-cash", name: "Наличные", initialBalance: 0 },
+        { id: "acc-card", name: "Карта", initialBalance: 0 },
+        { id: "acc-deposit", name: "Вклад", initialBalance: 0 }
+      ],
+      operations: [],
+      categoryBudgets: [],
+      goals: [],
+      debts: []
+    };
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        state = {
+          settings: { ...state.settings, ...(parsed.settings || {}) },
+          accounts: Array.isArray(parsed.accounts) && parsed.accounts.length ? parsed.accounts : state.accounts,
+          operations: Array.isArray(parsed.operations) ? parsed.operations : [],
+          categoryBudgets: Array.isArray(parsed.categoryBudgets) ? parsed.categoryBudgets : [],
+          goals: Array.isArray(parsed.goals) ? parsed.goals : [],
+          debts: Array.isArray(parsed.debts) ? parsed.debts : []
+        };
+      } catch (e) {
+        console.error(t("err_load_data"), e);
+      }
+    }
+
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+    }
+
+    function getTodayISO() {
+      return new Date().toISOString().split("T")[0];
+    }
+
+    function getCurrentMonthName() {
+      return MONTHS_RU[new Date().getMonth()];
+    }
+
+    function getCurrentYear() {
+      return new Date().getFullYear();
+    }
+
+    function monthNameFromDate(dateString) {
+      const d = new Date(dateString);
+      return MONTHS_RU[d.getMonth()];
+    }
+
+    function yearFromDate(dateString) {
+      const d = new Date(dateString);
+      return d.getFullYear();
+    }
+
+    function dayFromDate(dateString) {
+      const d = new Date(dateString);
+      return d.getDate();
+    }
+
+    function formatCurrency(value) {
+      const loc = AppI18n.getLang() === "en" ? "en-US" : "ru-RU";
+      return new Intl.NumberFormat(loc, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      }).format(Number(value || 0)) + " " + (state.settings.currencySymbol || "₽");
+    }
+
+    function formatPercent(value) {
+      return Number(value || 0).toFixed(1) + "%";
+    }
+
+    function openTab(id, btn) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      if (btn) {
+        btn.classList.add("active");
+      } else {
+        // Поддержка программного открытия вкладки (например, кликом по KPI-блоку)
+        const targetBtn = document.querySelector(`.tab-btn[data-tab-id="${id}"]`);
+        if (targetBtn) targetBtn.classList.add("active");
+      }
+    }
+
+    function applyHashTab() {
+      const id = (location.hash || "").replace(/^#/, "").trim();
+      if (!id) return;
+      const el = document.getElementById(id);
+      if (!el || !el.classList.contains("tab-content")) return;
+      openTab(id, null);
+    }
+
+    function populateMonthSelect(selectId) {
+      const select = document.getElementById(selectId);
+      resetSelectOptions(select);
+      MONTHS_RU.forEach((ru, idx) => {
+        const option = document.createElement("option");
+        option.value = ru;
+        option.textContent = AppI18n.getLang() === "en" ? MONTHS_EN[idx] : ru;
+        select.appendChild(option);
+      });
+    }
+
+    function populateBudgetCategorySelect() {
+      const select = document.getElementById("budgetCategory");
+      resetSelectOptions(select);
+      EXPENSE_CATEGORIES.forEach((ru, idx) => {
+        const option = document.createElement("option");
+        option.value = ru;
+        option.textContent = AppI18n.getLang() === "en" ? AppI18n.EXPENSE_CATEGORIES_EN[idx] : ru;
+        select.appendChild(option);
+      });
+    }
+
+    function populateCategorySelect() {
+      const type = document.getElementById("opType").value;
+      const select = document.getElementById("opCategory");
+      const ruList = type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+      const enList = type === "income" ? AppI18n.INCOME_CATEGORIES_EN : AppI18n.EXPENSE_CATEGORIES_EN;
+      resetSelectOptions(select);
+      ruList.forEach((ru, idx) => {
+        const option = document.createElement("option");
+        option.value = ru;
+        option.textContent = AppI18n.getLang() === "en" ? enList[idx] : ru;
+        select.appendChild(option);
+      });
+    }
+
+    function populateAccountSelects() {
+      const accountSelectIds = ["opAccount", "transferFrom", "transferTo"];
+      accountSelectIds.forEach(id => {
+        const select = document.getElementById(id);
+        if (!select) return;
+        const current = select.value;
+        resetSelectOptions(select);
+        state.accounts.forEach(acc => {
+          const option = document.createElement("option");
+          option.value = acc.id;
+          option.textContent = AppI18n.getAccountDisplayName(acc);
+          select.appendChild(option);
+        });
+        if (state.accounts.some(a => a.id === current)) {
+          select.value = current;
+        }
+      });
+    }
+
+    function initInputs() {
+      ["dashboardMonth", "filterMonth", "calendarMonth", "budgetMonth"].forEach(populateMonthSelect);
+
+      document.getElementById("dashboardMonth").value = getCurrentMonthName();
+      document.getElementById("filterMonth").value = getCurrentMonthName();
+      document.getElementById("calendarMonth").value = getCurrentMonthName();
+      document.getElementById("budgetMonth").value = getCurrentMonthName();
+
+      document.getElementById("dashboardYear").value = getCurrentYear();
+      document.getElementById("filterYear").value = getCurrentYear();
+      document.getElementById("calendarYear").value = getCurrentYear();
+      document.getElementById("budgetYear").value = getCurrentYear();
+      document.getElementById("reportYear").value = getCurrentYear();
+
+      document.getElementById("opDate").value = getTodayISO();
+      document.getElementById("transferDate").value = getTodayISO();
+
+      populateCategorySelect();
+      populateBudgetCategorySelect();
+      populateAccountSelects();
+    }
+
+    function applyTheme() {
+      document.body.classList.toggle("dark", !!state.settings.darkTheme);
+    }
+
+    function toggleTheme() {
+      state.settings.darkTheme = !state.settings.darkTheme;
+      saveState();
+      applyTheme();
+      refreshAll();
+    }
+
+    function syncSettingsToInputs() {
+      document.getElementById("reservePercent").value = state.settings.reservePercent || 10;
+      document.getElementById("currencySymbol").value = state.settings.currencySymbol || "₽";
+      document.getElementById("settingsReserve").value = state.settings.reservePercent || 10;
+      document.getElementById("settingsCurrency").value = state.settings.currencySymbol || "₽";
+    }
+
+    function saveSettings() {
+      state.settings.reservePercent = Number(document.getElementById("reservePercent").value || 10);
+      state.settings.currencySymbol = document.getElementById("currencySymbol").value || "₽";
+      document.getElementById("settingsReserve").value = state.settings.reservePercent;
+      document.getElementById("settingsCurrency").value = state.settings.currencySymbol;
+      saveState();
+    }
+
+    function applySettings() {
+      state.settings.reservePercent = Number(document.getElementById("settingsReserve").value || 10);
+      state.settings.currencySymbol = document.getElementById("settingsCurrency").value || "₽";
+      syncSettingsToInputs();
+      saveState();
+      refreshAll();
+      alert(t("alert_settings_applied"));
+    }
+
+    class ValidationError extends Error {
+      constructor(message, fieldId = null) {
+        super(message);
+        this.name = "ValidationError";
+        this.fieldId = fieldId;
+      }
+    }
+
+    function clearFormErrors() {
+      document.querySelectorAll('.field-error').forEach(node => node.remove());
+      document.querySelectorAll('.input-error').forEach(node => node.classList.remove('input-error'));
+    }
+
+    function showFormError(message, fieldId = null) {
+      if (!fieldId) {
+        alert(message);
+        return;
+      }
+
+      const field = document.getElementById(fieldId);
+      if (!field) {
+        alert(message);
+        return;
+      }
+
+      field.classList.add('input-error');
+      field.focus();
+
+      const existing = field.parentElement.querySelector('.field-error');
+      if (existing) existing.remove();
+
+      const error = document.createElement('div');
+      error.className = 'field-error';
+      error.style.marginTop = '6px';
+      error.style.fontSize = '12px';
+      error.style.color = 'var(--danger)';
+      error.textContent = message;
+      field.parentElement.appendChild(error);
+    }
+
+    function normalizeText(value) {
+      return String(value || '').trim();
+    }
+
+    function clearElement(node) {
+      while (node.firstChild) {
+        node.removeChild(node.firstChild);
+      }
+    }
+
+    function resetSelectOptions(select) {
+      if (!select) return;
+      clearElement(select);
+    }
+
+
+    function createEmptyState(message) {
+      const div = document.createElement("div");
+      div.className = "empty-state";
+      div.textContent = message;
+      return div;
+    }
+
+    function createTableMessageRow(colspan, message) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = colspan;
+      td.textContent = message;
+      tr.appendChild(td);
+      return tr;
+    }
+
+    function createTextCell(text) {
+      const td = document.createElement("td");
+      td.textContent = text;
+      return td;
+    }
+
+    function createActionButton(text, className, onClick) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = className;
+      button.textContent = text;
+      button.addEventListener("click", onClick);
+      return button;
+    }
+
+    function createBadge(label, className) {
+      const span = document.createElement("span");
+      span.className = className;
+      span.textContent = label;
+      return span;
+    }
+
+    function resetTransferForm() {
+      document.getElementById("transferDate").value = getTodayISO();
+      document.getElementById("transferAmount").value = "";
+      document.getElementById("transferDescription").value = "";
+    }
+
+    function readTransferForm() {
+      return {
+        date: normalizeText(document.getElementById("transferDate").value),
+        amount: document.getElementById("transferAmount").value,
+        fromAccountId: normalizeText(document.getElementById("transferFrom").value),
+        toAccountId: normalizeText(document.getElementById("transferTo").value),
+        description: normalizeText(document.getElementById("transferDescription").value)
+      };
+    }
+
+    function validateTransferInput(input, currentState) {
+      const amount = Number(input.amount);
+
+      if (!input.date || Number.isNaN(new Date(input.date).getTime())) {
+        throw new ValidationError(t("val_transfer_date"), "transferDate");
+      }
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        throw new ValidationError(t("val_transfer_amount"), "transferAmount");
+      }
+
+      if (!input.fromAccountId) {
+        throw new ValidationError(t("val_transfer_from"), "transferFrom");
+      }
+
+      if (!input.toAccountId) {
+        throw new ValidationError(t("val_transfer_to"), "transferTo");
+      }
+
+      if (input.fromAccountId === input.toAccountId) {
+        throw new ValidationError(t("val_transfer_diff"), "transferTo");
+      }
+
+      const fromExists = currentState.accounts.some(account => account.id === input.fromAccountId);
+      if (!fromExists) {
+        throw new ValidationError(t("val_transfer_from_missing"), "transferFrom");
+      }
+
+      const toExists = currentState.accounts.some(account => account.id === input.toAccountId);
+      if (!toExists) {
+        throw new ValidationError(t("val_transfer_to_missing"), "transferTo");
+      }
+
+      return {
+        date: input.date,
+        amount,
+        fromAccountId: input.fromAccountId,
+        toAccountId: input.toAccountId,
+        description: input.description,
+        category: "Перевод"
+      };
+    }
+
+    function appendTransferOperation(currentState, payload) {
+      const transfer = {
+        id: generateId(),
+        type: "transfer",
+        date: payload.date,
+        amount: payload.amount,
+        fromAccountId: payload.fromAccountId,
+        toAccountId: payload.toAccountId,
+        description: payload.description,
+        category: payload.category
+      };
+
+      return {
+        ...currentState,
+        operations: [...currentState.operations, transfer]
+      };
+    }
+
+    function readAccountForm() {
+      return {
+        id: normalizeText(document.getElementById('editingAccountId').value),
+        name: normalizeText(document.getElementById('accountName').value),
+        initialBalance: document.getElementById('accountBalance').value
+      };
+    }
+
+    function validateAccountInput(input) {
+      const name = normalizeText(input.name);
+      const initialBalance = Number(input.initialBalance || 0);
+
+      if (!name) {
+        throw new ValidationError(t("val_account_name"), "accountName");
+      }
+
+      if (!Number.isFinite(initialBalance)) {
+        throw new ValidationError(t("val_account_balance"), "accountBalance");
+      }
+
+      return {
+        id: normalizeText(input.id),
+        name,
+        initialBalance
+      };
+    }
+
+    function upsertAccount(currentState, input) {
+      const payload = {
+        name: input.name,
+        initialBalance: input.initialBalance
+      };
+
+      if (!input.id) {
+        return {
+          ...currentState,
+          accounts: [...currentState.accounts, { id: generateId(), ...payload }]
+        };
+      }
+
+      const index = currentState.accounts.findIndex(acc => acc.id === input.id);
+      if (index === -1) {
+        throw new Error(t("err_account_not_found"));
+      }
+
+      const accounts = [...currentState.accounts];
+      accounts[index] = { ...accounts[index], ...payload };
+
+      return {
+        ...currentState,
+        accounts
+      };
+    }
+
+    function readOperationForm() {
+      return {
+        id: normalizeText(document.getElementById('editingOperationId').value),
+        date: normalizeText(document.getElementById('opDate').value),
+        type: normalizeText(document.getElementById('opType').value),
+        accountId: normalizeText(document.getElementById('opAccount').value),
+        category: normalizeText(document.getElementById('opCategory').value),
+        amount: document.getElementById('opAmount').value,
+        description: normalizeText(document.getElementById('opDescription').value)
+      };
+    }
+
+    function validateOperationInput(input, currentState) {
+      const type = normalizeText(input.type);
+      const amount = Number(input.amount);
+      const date = normalizeText(input.date);
+      const category = normalizeText(input.category);
+      const accountId = normalizeText(input.accountId);
+      const description = normalizeText(input.description);
+
+      if (!["income", "expense"].includes(type)) {
+        throw new ValidationError(t("val_op_type"), "opType");
+      }
+
+      if (!date || Number.isNaN(new Date(date).getTime())) {
+        throw new ValidationError(t("val_op_date"), "opDate");
+      }
+
+      if (!accountId) {
+        throw new ValidationError(t("val_op_account"), "opAccount");
+      }
+
+      if (!currentState.accounts.some(acc => acc.id === accountId)) {
+        throw new ValidationError(t("val_op_account_missing"), "opAccount");
+      }
+
+      if (!category) {
+        throw new ValidationError(t("val_op_category"), "opCategory");
+      }
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        throw new ValidationError(t("val_op_amount"), "opAmount");
+      }
+
+      return {
+        id: normalizeText(input.id),
+        date,
+        type,
+        accountId,
+        category,
+        amount,
+        description
+      };
+    }
+
+    function upsertOperation(currentState, input) {
+      const payload = {
+        date: input.date,
+        type: input.type,
+        accountId: input.accountId,
+        category: input.category,
+        amount: input.amount,
+        description: input.description
+      };
+
+      if (!input.id) {
+        return {
+          ...currentState,
+          operations: [...currentState.operations, { id: generateId(), ...payload }]
+        };
+      }
+
+      const index = currentState.operations.findIndex(op => op.id === input.id);
+      if (index === -1) {
+        throw new Error(t("err_operation_not_found"));
+      }
+
+      const operations = [...currentState.operations];
+      operations[index] = { ...operations[index], ...payload };
+
+      return {
+        ...currentState,
+        operations
+      };
+    }
+
+    function readGoalForm() {
+      return {
+        id: normalizeText(document.getElementById('editingGoalId').value),
+        name: normalizeText(document.getElementById('goalName').value),
+        target: document.getElementById('goalTarget').value,
+        current: document.getElementById('goalCurrent').value,
+        deadline: normalizeText(document.getElementById('goalDeadline').value),
+        description: normalizeText(document.getElementById('goalDescription').value)
+      };
+    }
+
+    function validateGoalInput(input) {
+      const name = normalizeText(input.name);
+      const target = Number(input.target);
+      const currentRaw = input.current;
+      const current = currentRaw === '' ? 0 : Number(currentRaw);
+      const deadline = normalizeText(input.deadline);
+      const description = normalizeText(input.description);
+
+      if (!name) {
+        throw new ValidationError(t("val_goal_name"), "goalName");
+      }
+
+      if (!Number.isFinite(target) || target <= 0) {
+        throw new ValidationError(t("val_goal_target"), "goalTarget");
+      }
+
+      if (!Number.isFinite(current) || current < 0) {
+        throw new ValidationError(t("val_goal_current"), "goalCurrent");
+      }
+
+      if (deadline && Number.isNaN(new Date(deadline).getTime())) {
+        throw new ValidationError(t("val_goal_deadline"), "goalDeadline");
+      }
+
+      return {
+        id: normalizeText(input.id),
+        name,
+        target,
+        current,
+        deadline,
+        description
+      };
+    }
+
+    function upsertGoal(currentState, input) {
+      const payload = {
+        name: input.name,
+        target: input.target,
+        current: input.current,
+        deadline: input.deadline,
+        description: input.description
+      };
+
+      if (!input.id) {
+        return {
+          ...currentState,
+          goals: [...currentState.goals, { id: generateId(), ...payload }]
+        };
+      }
+
+      const index = currentState.goals.findIndex(goal => goal.id === input.id);
+      if (index === -1) {
+        throw new Error(t("err_goal_not_found"));
+      }
+
+      const goals = [...currentState.goals];
+      goals[index] = { ...goals[index], ...payload };
+
+      return {
+        ...currentState,
+        goals
+      };
+    }
+
+    function readDebtForm() {
+      return {
+        id: normalizeText(document.getElementById('editingDebtId').value),
+        name: normalizeText(document.getElementById('debtName').value),
+        total: document.getElementById('debtTotal').value,
+        remaining: document.getElementById('debtRemaining').value,
+        payment: document.getElementById('debtPayment').value,
+        description: normalizeText(document.getElementById('debtDescription').value)
+      };
+    }
+
+    function validateDebtInput(input) {
+      const name = normalizeText(input.name);
+      const total = Number(input.total);
+      const remainingRaw = input.remaining;
+      const paymentRaw = input.payment;
+      const remaining = remainingRaw === '' ? 0 : Number(remainingRaw);
+      const payment = paymentRaw === '' ? 0 : Number(paymentRaw);
+      const description = normalizeText(input.description);
+
+      if (!name) {
+        throw new ValidationError(t("val_debt_name"), "debtName");
+      }
+
+      if (!Number.isFinite(total) || total <= 0) {
+        throw new ValidationError(t("val_debt_total"), "debtTotal");
+      }
+
+      if (!Number.isFinite(remaining) || remaining < 0) {
+        throw new ValidationError(t("val_debt_remaining_neg"), "debtRemaining");
+      }
+
+      if (remaining > total) {
+        throw new ValidationError(t("val_debt_remaining_high"), "debtRemaining");
+      }
+
+      if (!Number.isFinite(payment) || payment < 0) {
+        throw new ValidationError(t("val_debt_payment"), "debtPayment");
+      }
+
+      return {
+        id: normalizeText(input.id),
+        name,
+        total,
+        remaining,
+        payment,
+        description
+      };
+    }
+
+    function upsertDebt(currentState, input) {
+      const payload = {
+        name: input.name,
+        total: input.total,
+        remaining: input.remaining,
+        payment: input.payment,
+        description: input.description
+      };
+
+      if (!input.id) {
+        return {
+          ...currentState,
+          debts: [...currentState.debts, { id: generateId(), ...payload }]
+        };
+      }
+
+      const index = currentState.debts.findIndex(debt => debt.id === input.id);
+      if (index === -1) {
+        throw new Error(t("err_debt_not_found"));
+      }
+
+      const debts = [...currentState.debts];
+      debts[index] = { ...debts[index], ...payload };
+
+      return {
+        ...currentState,
+        debts
+      };
+    }
+
+    // ---------------------------
+    // ACCOUNTS
+    // ---------------------------
+    function resetAccountForm() {
+      document.getElementById("editingAccountId").value = "";
+      document.getElementById("accountName").value = "";
+      document.getElementById("accountBalance").value = "";
+    }
+
+    function saveAccount() {
+      clearFormErrors();
+
+      try {
+        const rawInput = readAccountForm();
+        const validInput = validateAccountInput(rawInput);
+        state = upsertAccount(state, validInput);
+
+        saveState();
+        resetAccountForm();
+        populateAccountSelects();
+        refreshAll();
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          showFormError(error.message, error.fieldId);
+          return;
+        }
+
+        console.error(error);
+        alert(t("alert_save_account_fail"));
+      }
+    }
+
+    function editAccount(id) {
+      const acc = state.accounts.find(a => a.id === id);
+      if (!acc) return;
+      document.getElementById("editingAccountId").value = acc.id;
+      document.getElementById("accountName").value = acc.name;
+      document.getElementById("accountBalance").value = acc.initialBalance;
+    }
+
+    function deleteAccount(id) {
+      const hasOperations = state.operations.some(op => op.accountId === id || op.fromAccountId === id || op.toAccountId === id);
+      if (hasOperations) {
+        alert(t("alert_account_in_use"));
+        return;
+      }
+      state.accounts = state.accounts.filter(a => a.id !== id);
+      saveState();
+      populateAccountSelects();
+      refreshAll();
+    }
+
+    function getAccountBalance(accountId) {
+      const account = state.accounts.find(a => a.id === accountId);
+      if (!account) return 0;
+
+      let balance = Number(account.initialBalance || 0);
+
+      state.operations.forEach(op => {
+        if (op.type === "income" && op.accountId === accountId) balance += Number(op.amount);
+        if (op.type === "expense" && op.accountId === accountId) balance -= Number(op.amount);
+        if (op.type === "transfer" && op.fromAccountId === accountId) balance -= Number(op.amount);
+        if (op.type === "transfer" && op.toAccountId === accountId) balance += Number(op.amount);
+      });
+
+      return balance;
+    }
+
+    function renderAccounts() {
+      const list = document.getElementById("accountsList");
+      const summaryGrid = document.getElementById("accountSummaryGrid");
+
+      clearElement(list);
+      clearElement(summaryGrid);
+
+      if (!state.accounts.length) {
+        list.appendChild(createEmptyState(t("accounts_empty")));
+        return;
+      }
+
+      state.accounts.forEach(acc => {
+        const balance = getAccountBalance(acc.id);
+
+        const item = document.createElement("div");
+        item.className = "account-card";
+        item.style.marginBottom = "12px";
+
+        const layout = document.createElement("div");
+        layout.style.display = "flex";
+        layout.style.justifyContent = "space-between";
+        layout.style.gap = "12px";
+        layout.style.flexWrap = "wrap";
+
+        const info = document.createElement("div");
+        const title = document.createElement("h3");
+        title.style.margin = "0 0 6px";
+        title.textContent = AppI18n.getAccountDisplayName(acc);
+
+        const note = document.createElement("div");
+        note.className = "small-note";
+        note.textContent = `${t("acc_initial_lbl")} ${formatCurrency(acc.initialBalance)}`;
+
+        info.appendChild(title);
+        info.appendChild(note);
+
+        const right = document.createElement("div");
+        right.className = "right-align";
+
+        const balanceNode = document.createElement("div");
+        balanceNode.style.fontWeight = "bold";
+        balanceNode.style.fontSize = "24px";
+        balanceNode.textContent = formatCurrency(balance);
+
+        const actions = document.createElement("div");
+        actions.className = "btn-row no-print";
+        actions.style.justifyContent = "flex-end";
+        actions.appendChild(createActionButton(t("btn_edit_short"), "btn-secondary btn-small", () => editAccount(acc.id)));
+        actions.appendChild(createActionButton(t("btn_delete"), "btn-danger btn-small", () => deleteAccount(acc.id)));
+
+        right.appendChild(balanceNode);
+        right.appendChild(actions);
+
+        layout.appendChild(info);
+        layout.appendChild(right);
+        item.appendChild(layout);
+        list.appendChild(item);
+
+        const summary = document.createElement("div");
+        summary.className = "kpi";
+
+        const summaryLabel = document.createElement("div");
+        summaryLabel.className = "kpi-label";
+        summaryLabel.textContent = AppI18n.getAccountDisplayName(acc);
+
+        const summaryValue = document.createElement("div");
+        summaryValue.className = "kpi-value cyan-text";
+        summaryValue.textContent = formatCurrency(balance);
+
+        summary.appendChild(summaryLabel);
+        summary.appendChild(summaryValue);
+        summaryGrid.appendChild(summary);
+      });
+    }
+
+    function addTransfer() {
+      clearFormErrors();
+
+      try {
+        const rawInput = readTransferForm();
+        const validInput = validateTransferInput(rawInput, state);
+        state = appendTransferOperation(state, validInput);
+
+        saveState();
+        resetTransferForm();
+        refreshAll();
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          showFormError(error.message, error.fieldId);
+          return;
+        }
+
+        console.error(error);
+        alert(t("alert_save_transfer_fail"));
+      }
+    }
+
+    // ---------------------------
+    // OPERATIONS
+    // ---------------------------
+    function resetOperationForm() {
+      document.getElementById("editingOperationId").value = "";
+      document.getElementById("opDate").value = getTodayISO();
+      document.getElementById("opType").value = "income";
+      populateCategorySelect();
+      populateAccountSelects();
+      document.getElementById("opAmount").value = "";
+      document.getElementById("opDescription").value = "";
+    }
+
+    function saveOperation() {
+      clearFormErrors();
+
+      try {
+        const rawInput = readOperationForm();
+        const validInput = validateOperationInput(rawInput, state);
+        state = upsertOperation(state, validInput);
+
+        saveState();
+        resetOperationForm();
+        refreshAll();
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          showFormError(error.message, error.fieldId);
+          return;
+        }
+
+        console.error(error);
+        alert(t("alert_save_operation_fail"));
+      }
+    }
+
+    function editOperation(id) {
+      const op = state.operations.find(o => o.id === id);
+      if (!op || op.type === "transfer") return;
+
+      document.getElementById("editingOperationId").value = op.id;
+      document.getElementById("opDate").value = op.date;
+      document.getElementById("opType").value = op.type;
+      populateCategorySelect();
+      populateAccountSelects();
+      document.getElementById("opAccount").value = op.accountId;
+      document.getElementById("opCategory").value = op.category;
+      document.getElementById("opAmount").value = op.amount;
+      document.getElementById("opDescription").value = op.description || "";
+      document.getElementById("operations").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function deleteOperation(id) {
+      state.operations = state.operations.filter(op => op.id !== id);
+      saveState();
+      refreshAll();
+    }
+
+    function getSelectedPeriod() {
+      return {
+        month: document.getElementById("dashboardMonth").value,
+        year: Number(document.getElementById("dashboardYear").value)
+      };
+    }
+
+    function getOperationsForPeriod(month, year) {
+      return state.operations.filter(op =>
+        monthNameFromDate(op.date) === month &&
+        yearFromDate(op.date) === Number(year)
+      );
+    }
+
+    function calculatePeriodStats(month, year) {
+      const ops = getOperationsForPeriod(month, year);
+      const incomes = ops.filter(op => op.type === "income");
+      const expenses = ops.filter(op => op.type === "expense");
+      const transfers = ops.filter(op => op.type === "transfer");
+
+      const totalIncome = incomes.reduce((sum, item) => sum + Number(item.amount), 0);
+      const totalExpenses = expenses.reduce((sum, item) => sum + Number(item.amount), 0);
+      const balance = totalIncome - totalExpenses;
+      const expensePercent = totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0;
+      const reserve = totalIncome * ((state.settings.reservePercent || 10) / 100);
+
+      return {
+        operations: ops,
+        incomes,
+        expenses,
+        transfers,
+        totalIncome,
+        totalExpenses,
+        balance,
+        expensePercent,
+        reserve
+      };
+    }
+
+    function renderOperationsTable() {
+      const tbody = document.getElementById("operationsTableBody");
+      const month = document.getElementById("filterMonth").value;
+      const year = Number(document.getElementById("filterYear").value);
+      const type = document.getElementById("filterType").value;
+      const categoryFilter = document.getElementById("filterCategory").value.trim().toLowerCase();
+      const search = document.getElementById("filterSearch").value.trim().toLowerCase();
+      const sort = document.getElementById("sortOperations").value;
+
+      let operations = getOperationsForPeriod(month, year);
+
+      if (type !== "all") {
+        operations = operations.filter(op => op.type === type);
+      }
+
+      if (categoryFilter) {
+        operations = operations.filter(op =>
+          (op.category || "").toLowerCase().includes(categoryFilter)
+        );
+      }
+
+      if (search) {
+        operations = operations.filter(op =>
+          (op.description || "").toLowerCase().includes(search) ||
+          (op.category || "").toLowerCase().includes(search)
+        );
+      }
+
+      operations.sort((a, b) => {
+        if (sort === "date_desc") return new Date(b.date) - new Date(a.date);
+        if (sort === "date_asc") return new Date(a.date) - new Date(b.date);
+        if (sort === "amount_desc") return b.amount - a.amount;
+        if (sort === "amount_asc") return a.amount - b.amount;
+        return 0;
+      });
+
+      clearElement(tbody);
+
+      if (!operations.length) {
+        tbody.appendChild(createTableMessageRow(7, t("op_table_none")));
+        return;
+      }
+
+      operations.forEach(op => {
+        const tr = document.createElement("tr");
+        tr.appendChild(createTextCell(op.date));
+
+        const typeCell = document.createElement("td");
+        if (op.type === "transfer") {
+          typeCell.appendChild(createBadge(t("badge_transfer"), "badge badge-transfer"));
+        } else {
+          typeCell.appendChild(
+            createBadge(op.type === "income" ? t("op_income") : t("op_expense"), `badge ${op.type === "income" ? "badge-income" : "badge-expense"}`)
+          );
+        }
+        tr.appendChild(typeCell);
+
+        if (op.type === "transfer") {
+          const fromAcc = state.accounts.find(a => a.id === op.fromAccountId);
+          const toAcc = state.accounts.find(a => a.id === op.toAccountId);
+          const from = fromAcc ? AppI18n.getAccountDisplayName(fromAcc) : "-";
+          const to = toAcc ? AppI18n.getAccountDisplayName(toAcc) : "-";
+          tr.appendChild(createTextCell(`${from} → ${to}`));
+          tr.appendChild(createTextCell(t("badge_transfer")));
+        } else {
+          const accForOp = state.accounts.find(a => a.id === op.accountId);
+          const accountName = accForOp ? AppI18n.getAccountDisplayName(accForOp) : "-";
+          tr.appendChild(createTextCell(accountName));
+          tr.appendChild(createTextCell(op.category ? displayCategoryLabel(op.category) : "-"));
+        }
+
+        tr.appendChild(createTextCell(op.description || "-"));
+        tr.appendChild(createTextCell(formatCurrency(op.amount)));
+
+        const actionsCell = document.createElement("td");
+        actionsCell.className = "no-print";
+
+        if (op.type !== "transfer") {
+          actionsCell.appendChild(createActionButton(t("btn_edit_short"), "btn-secondary btn-small", () => editOperation(op.id)));
+        }
+        actionsCell.appendChild(createActionButton(t("btn_delete"), "btn-danger btn-small", () => deleteOperation(op.id)));
+
+        tr.appendChild(actionsCell);
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ---------------------------
+    // CATEGORY BUDGETS
+    // ---------------------------
+    function resetBudgetForm() {
+      document.getElementById("editingBudgetId").value = "";
+      document.getElementById("budgetMonth").value = getCurrentMonthName();
+      document.getElementById("budgetYear").value = getCurrentYear();
+      document.getElementById("budgetLimit").value = "";
+    }
+
+    function saveCategoryBudget() {
+      const id = document.getElementById("editingBudgetId").value;
+      const month = document.getElementById("budgetMonth").value;
+      const year = Number(document.getElementById("budgetYear").value);
+      const category = document.getElementById("budgetCategory").value;
+      const limit = Number(document.getElementById("budgetLimit").value);
+
+      if (!month || !year || !category || !limit || limit <= 0) {
+        alert(t("alert_budget_fill"));
+        return;
+      }
+
+      const payload = { month, year, category, limit };
+
+      if (id) {
+        const index = state.categoryBudgets.findIndex(b => b.id === id);
+        if (index !== -1) state.categoryBudgets[index] = { ...state.categoryBudgets[index], ...payload };
+      } else {
+        const existing = state.categoryBudgets.find(b =>
+          b.month === month && b.year === year && b.category === category
+        );
+        if (existing) {
+          existing.limit = limit;
+        } else {
+          state.categoryBudgets.push({ id: generateId(), ...payload });
+        }
+      }
+
+      saveState();
+      resetBudgetForm();
+      refreshAll();
+    }
+
+    function editCategoryBudget(id) {
+      const item = state.categoryBudgets.find(b => b.id === id);
+      if (!item) return;
+      document.getElementById("editingBudgetId").value = item.id;
+      document.getElementById("budgetMonth").value = item.month;
+      document.getElementById("budgetYear").value = item.year;
+      document.getElementById("budgetCategory").value = item.category;
+      document.getElementById("budgetLimit").value = item.limit;
+    }
+
+    function deleteCategoryBudget(id) {
+      state.categoryBudgets = state.categoryBudgets.filter(b => b.id !== id);
+      saveState();
+      refreshAll();
+    }
+
+    function getActualCategoryExpense(month, year, category) {
+      return state.operations
+        .filter(op =>
+          op.type === "expense" &&
+          monthNameFromDate(op.date) === month &&
+          yearFromDate(op.date) === Number(year) &&
+          op.category === category
+        )
+        .reduce((sum, op) => sum + Number(op.amount), 0);
+    }
+
+    function getOverspentBudgetsForPeriod(month, year) {
+      return state.categoryBudgets
+        .filter(b => b.month === month && b.year === Number(year))
+        .map(b => {
+          const actual = getActualCategoryExpense(month, year, b.category);
+          return { ...b, actual, overspent: actual > b.limit };
+        })
+        .filter(b => b.overspent);
+    }
+
+    function renderCategoryBudgetsTable() {
+      const tbody = document.getElementById("budgetsTableBody");
+      clearElement(tbody);
+
+      if (!state.categoryBudgets.length) {
+        tbody.appendChild(createTableMessageRow(6, t("budgets_empty")));
+        return;
+      }
+
+      state.categoryBudgets
+        .slice()
+        .sort((a, b) => {
+          const dA = new Date(a.year, MONTHS_RU.indexOf(a.month), 1);
+          const dB = new Date(b.year, MONTHS_RU.indexOf(b.month), 1);
+          return dB - dA;
+        })
+        .forEach(item => {
+          const actual = getActualCategoryExpense(item.month, item.year, item.category);
+          const overspent = actual > item.limit;
+
+          const tr = document.createElement("tr");
+          if (overspent) tr.className = "danger-row";
+
+          tr.appendChild(createTextCell(`${localizeMonthFromRu(item.month)} ${item.year}`));
+          tr.appendChild(createTextCell(displayCategoryLabel(item.category)));
+          tr.appendChild(createTextCell(formatCurrency(item.limit)));
+          tr.appendChild(createTextCell(formatCurrency(actual)));
+          tr.appendChild(createTextCell(overspent ? t("status_overspent") : t("status_within")));
+
+          const actionCell = document.createElement("td");
+          actionCell.className = "no-print";
+          actionCell.appendChild(createActionButton(t("btn_edit_short"), "btn-secondary btn-small", () => editCategoryBudget(item.id)));
+          actionCell.appendChild(document.createTextNode(" "));
+          actionCell.appendChild(createActionButton(t("btn_delete"), "btn-danger btn-small", () => deleteCategoryBudget(item.id)));
+
+          tr.appendChild(actionCell);
+          tbody.appendChild(tr);
+        });
+    }
+
+    // ---------------------------
+    // GOALS
+    // ---------------------------
+    function resetGoalForm() {
+      document.getElementById("editingGoalId").value = "";
+      document.getElementById("goalName").value = "";
+      document.getElementById("goalTarget").value = "";
+      document.getElementById("goalCurrent").value = "";
+      document.getElementById("goalDeadline").value = "";
+      document.getElementById("goalDescription").value = "";
+    }
+
+    function saveGoal() {
+      clearFormErrors();
+
+      try {
+        const rawInput = readGoalForm();
+        const validInput = validateGoalInput(rawInput);
+        state = upsertGoal(state, validInput);
+
+        saveState();
+        resetGoalForm();
+        refreshAll();
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          showFormError(error.message, error.fieldId);
+          return;
+        }
+
+        console.error(error);
+        alert(t("alert_save_goal_fail"));
+      }
+    }
+
+    function editGoal(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal) return;
+      document.getElementById("editingGoalId").value = goal.id;
+      document.getElementById("goalName").value = goal.name;
+      document.getElementById("goalTarget").value = goal.target;
+      document.getElementById("goalCurrent").value = goal.current;
+      document.getElementById("goalDeadline").value = goal.deadline || "";
+      document.getElementById("goalDescription").value = goal.description || "";
+    }
+
+    function deleteGoal(id) {
+      state.goals = state.goals.filter(g => g.id !== id);
+      saveState();
+      refreshAll();
+    }
+
+    function renderGoals() {
+      const container = document.getElementById("goalsList");
+      clearElement(container);
+
+      if (!state.goals.length) {
+        container.appendChild(createEmptyState(t("goals_empty")));
+        return;
+      }
+
+      state.goals.forEach(goal => {
+        const progress = goal.target > 0 ? Math.min((goal.current / goal.target) * 100, 100) : 0;
+        const div = document.createElement("div");
+        div.className = "card";
+        div.style.marginBottom = "12px";
+
+        const layout = document.createElement("div");
+        layout.style.display = "flex";
+        layout.style.justifyContent = "space-between";
+        layout.style.gap = "12px";
+        layout.style.flexWrap = "wrap";
+
+        const info = document.createElement("div");
+        info.appendChild(createBadge(t("badge_goal"), "badge badge-goal"));
+
+        const title = document.createElement("h3");
+        title.style.margin = "10px 0 8px";
+        title.textContent = goal.name;
+        info.appendChild(title);
+
+        const note = document.createElement("div");
+        note.className = "small-note";
+        note.appendChild(document.createTextNode(`${t("goal_target_lbl")} ${formatCurrency(goal.target)}`));
+        note.appendChild(document.createElement("br"));
+        note.appendChild(document.createTextNode(`${t("goal_saved_lbl")} ${formatCurrency(goal.current)}`));
+        note.appendChild(document.createElement("br"));
+        note.appendChild(document.createTextNode(`${t("goal_deadline_lbl")} ${goal.deadline || t("goal_no_deadline")}`));
+        if (goal.description) {
+          note.appendChild(document.createElement("br"));
+          note.appendChild(document.createTextNode(`${t("goal_comment_lbl")} ${goal.description}`));
+        }
+        info.appendChild(note);
+
+        const right = document.createElement("div");
+        right.className = "right-align";
+
+        const progressValue = document.createElement("div");
+        progressValue.style.fontWeight = "bold";
+        progressValue.style.fontSize = "22px";
+        progressValue.textContent = `${progress.toFixed(1)}%`;
+
+        const actions = document.createElement("div");
+        actions.className = "btn-row no-print";
+        actions.style.justifyContent = "flex-end";
+        actions.appendChild(createActionButton(t("btn_edit_short"), "btn-secondary btn-small", () => editGoal(goal.id)));
+        actions.appendChild(createActionButton(t("btn_delete"), "btn-danger btn-small", () => deleteGoal(goal.id)));
+
+        right.appendChild(progressValue);
+        right.appendChild(actions);
+
+        layout.appendChild(info);
+        layout.appendChild(right);
+        div.appendChild(layout);
+
+        const track = document.createElement("div");
+        track.className = "progress-track mt-12";
+
+        const fill = document.createElement("div");
+        fill.className = "progress-fill";
+        fill.style.width = `${progress}%`;
+        fill.style.background = "var(--purple)";
+
+        track.appendChild(fill);
+        div.appendChild(track);
+        container.appendChild(div);
+      });
+    }
+
+    // ---------------------------
+    // DEBTS
+    // ---------------------------
+    function resetDebtForm() {
+      document.getElementById("editingDebtId").value = "";
+      document.getElementById("debtName").value = "";
+      document.getElementById("debtTotal").value = "";
+      document.getElementById("debtRemaining").value = "";
+      document.getElementById("debtPayment").value = "";
+      document.getElementById("debtDescription").value = "";
+    }
+
+    function saveDebt() {
+      clearFormErrors();
+
+      try {
+        const rawInput = readDebtForm();
+        const validInput = validateDebtInput(rawInput);
+        state = upsertDebt(state, validInput);
+
+        saveState();
+        resetDebtForm();
+        refreshAll();
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          showFormError(error.message, error.fieldId);
+          return;
+        }
+
+        console.error(error);
+        alert(t("alert_save_debt_fail"));
+      }
+    }
+
+    function editDebt(id) {
+      const debt = state.debts.find(d => d.id === id);
+      if (!debt) return;
+      document.getElementById("editingDebtId").value = debt.id;
+      document.getElementById("debtName").value = debt.name;
+      document.getElementById("debtTotal").value = debt.total;
+      document.getElementById("debtRemaining").value = debt.remaining;
+      document.getElementById("debtPayment").value = debt.payment;
+      document.getElementById("debtDescription").value = debt.description || "";
+    }
+
+    function deleteDebt(id) {
+      state.debts = state.debts.filter(d => d.id !== id);
+      saveState();
+      refreshAll();
+    }
+
+    function renderDebts() {
+      const container = document.getElementById("debtsList");
+      clearElement(container);
+
+      if (!state.debts.length) {
+        container.appendChild(createEmptyState(t("debts_empty")));
+        return;
+      }
+
+      state.debts.forEach(debt => {
+        const progress = debt.total > 0 ? Math.max(((debt.total - debt.remaining) / debt.total) * 100, 0) : 0;
+
+        const div = document.createElement("div");
+        div.className = "card";
+        div.style.marginBottom = "12px";
+
+        const layout = document.createElement("div");
+        layout.style.display = "flex";
+        layout.style.justifyContent = "space-between";
+        layout.style.gap = "12px";
+        layout.style.flexWrap = "wrap";
+
+        const info = document.createElement("div");
+        info.appendChild(createBadge(t("badge_debt"), "badge badge-debt"));
+
+        const title = document.createElement("h3");
+        title.style.margin = "10px 0 8px";
+        title.textContent = debt.name;
+        info.appendChild(title);
+
+        const note = document.createElement("div");
+        note.className = "small-note";
+        note.appendChild(document.createTextNode(`${t("debt_total_lbl")} ${formatCurrency(debt.total)}`));
+        note.appendChild(document.createElement("br"));
+        note.appendChild(document.createTextNode(`${t("debt_remaining_lbl")} ${formatCurrency(debt.remaining)}`));
+        note.appendChild(document.createElement("br"));
+        note.appendChild(document.createTextNode(`${t("debt_payment_lbl")} ${formatCurrency(debt.payment)}`));
+        if (debt.description) {
+          note.appendChild(document.createElement("br"));
+          note.appendChild(document.createTextNode(`${t("goal_comment_lbl")} ${debt.description}`));
+        }
+        info.appendChild(note);
+
+        const right = document.createElement("div");
+        right.className = "right-align";
+
+        const progressValue = document.createElement("div");
+        progressValue.style.fontWeight = "bold";
+        progressValue.style.fontSize = "22px";
+        progressValue.textContent = `${progress.toFixed(1)}%`;
+
+        const actions = document.createElement("div");
+        actions.className = "btn-row no-print";
+        actions.style.justifyContent = "flex-end";
+        actions.appendChild(createActionButton(t("btn_edit_short"), "btn-secondary btn-small", () => editDebt(debt.id)));
+        actions.appendChild(createActionButton(t("btn_delete"), "btn-danger btn-small", () => deleteDebt(debt.id)));
+
+        right.appendChild(progressValue);
+        right.appendChild(actions);
+
+        layout.appendChild(info);
+        layout.appendChild(right);
+        div.appendChild(layout);
+
+        const track = document.createElement("div");
+        track.className = "progress-track mt-12";
+
+        const fill = document.createElement("div");
+        fill.className = "progress-fill";
+        fill.style.width = `${progress}%`;
+        fill.style.background = "var(--warning)";
+
+        track.appendChild(fill);
+        div.appendChild(track);
+        container.appendChild(div);
+      });
+    }
+
+    // ---------------------------
+    // DASHBOARD / ANALYTICS
+    // ---------------------------
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function getDashboardIcon(key) {
+      const custom = state.settings.dashboardIcons && state.settings.dashboardIcons[key];
+      if (custom && String(custom).trim()) return String(custom).trim();
+      return DASHBOARD_ICON_DEFAULTS[key] || "📌";
+    }
+
+    function updateDashboardIcons() {
+      document.querySelectorAll("[data-dash-icon]").forEach(el => {
+        const key = el.getAttribute("data-dash-icon");
+        if (key) el.textContent = getDashboardIcon(key);
+      });
+    }
+
+    /** Список блоков в «Настройки → Иконки дашборда» (кнопки обрабатываются через делегирование) */
+    function renderDashboardIconsSettings() {
+      const container = document.getElementById("dashboardIconsSettingsList");
+      if (!container) return;
+      clearElement(container);
+
+      DASHBOARD_ICON_KEYS_ORDER.forEach(key => {
+        const row = document.createElement("div");
+        row.className = "dashboard-icon-setting-row";
+
+        const info = document.createElement("div");
+        info.className = "dashboard-icon-setting-info";
+
+        const preview = document.createElement("span");
+        preview.className = "dashboard-icon-setting-preview";
+        preview.setAttribute("data-dash-icon", key);
+        preview.setAttribute("aria-hidden", "true");
+
+        const label = document.createElement("div");
+        label.className = "dashboard-icon-setting-label";
+        label.textContent = dashboardIconLabel(key);
+
+        info.appendChild(preview);
+        info.appendChild(label);
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn-secondary btn-small";
+        btn.dataset.action = "edit-dashboard-icon";
+        btn.dataset.iconKey = key;
+        btn.textContent = t("btn_edit");
+
+        row.appendChild(info);
+        row.appendChild(btn);
+        container.appendChild(row);
+      });
+    }
+
+    function initSettingsDashboardIconsDelegation() {
+      const list = document.getElementById("dashboardIconsSettingsList");
+      if (!list || list.dataset.settingsIconsDelegationBound) return;
+      list.dataset.settingsIconsDelegationBound = "1";
+      list.addEventListener("click", event => {
+        const btn = event.target.closest('[data-action="edit-dashboard-icon"]');
+        if (!btn || !btn.dataset.iconKey) return;
+        event.preventDefault();
+        editDashboardIcon(btn.dataset.iconKey);
+      });
+    }
+
+    function openDashboardIconModal(key) {
+      if (!key) return;
+      const overlay = document.getElementById("dashboardIconModal");
+      const input = document.getElementById("dashboardIconModalInput");
+      const caption = document.getElementById("dashboardIconModalCaption");
+      if (!overlay || !input || !caption) return;
+
+      dashboardIconModalKey = key;
+      caption.textContent = dashboardIconLabel(key);
+      input.value = getDashboardIcon(key);
+      overlay.removeAttribute("hidden");
+      input.focus();
+      input.select();
+    }
+
+    function closeDashboardIconModal() {
+      const overlay = document.getElementById("dashboardIconModal");
+      if (overlay) overlay.setAttribute("hidden", "");
+      dashboardIconModalKey = null;
+    }
+
+    function saveDashboardIconModal() {
+      if (!dashboardIconModalKey) return;
+      const input = document.getElementById("dashboardIconModalInput");
+      const trimmed = ((input && input.value) || "").trim();
+      state.settings.dashboardIcons = state.settings.dashboardIcons || {};
+      if (!trimmed) {
+        delete state.settings.dashboardIcons[dashboardIconModalKey];
+      } else {
+        const chars = Array.from(trimmed);
+        state.settings.dashboardIcons[dashboardIconModalKey] = chars.slice(0, 3).join("");
+      }
+      saveState();
+      updateDashboardIcons();
+      closeDashboardIconModal();
+    }
+
+    function resetDashboardIconModal() {
+      if (!dashboardIconModalKey) return;
+      state.settings.dashboardIcons = state.settings.dashboardIcons || {};
+      delete state.settings.dashboardIcons[dashboardIconModalKey];
+      saveState();
+      updateDashboardIcons();
+      closeDashboardIconModal();
+    }
+
+    function editDashboardIcon(key) {
+      openDashboardIconModal(key);
+    }
+
+    function initDashboardIconModal() {
+      const overlay = document.getElementById("dashboardIconModal");
+      if (!overlay || overlay.dataset.iconModalBound) return;
+      overlay.dataset.iconModalBound = "1";
+
+      const box = overlay.querySelector(".modal-box");
+      if (box) box.addEventListener("click", e => e.stopPropagation());
+
+      overlay.addEventListener("click", () => closeDashboardIconModal());
+
+      const input = document.getElementById("dashboardIconModalInput");
+      if (input) {
+        input.addEventListener("keydown", e => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            saveDashboardIconModal();
+          }
+        });
+      }
+
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && !overlay.hasAttribute("hidden")) {
+          closeDashboardIconModal();
+        }
+      });
+    }
+
+    function toggleDashboardPanel(panel) {
+      const panelEl = document.getElementById(panel === "goals" ? "dashboardPanelGoals" : "dashboardPanelDebts");
+      const btn = document.querySelector(`[data-action="toggle-dashboard-panel"][data-panel="${panel}"]`);
+      if (!panelEl) return;
+      const isHidden = panelEl.hasAttribute("hidden");
+      if (isHidden) {
+        panelEl.removeAttribute("hidden");
+        if (btn) btn.setAttribute("aria-expanded", "true");
+        renderDashboardPanels();
+      } else {
+        panelEl.setAttribute("hidden", "");
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      }
+    }
+
+    function renderDashboardPanels() {
+      const goalsBody = document.getElementById("dashboardPanelGoalsBody");
+      const debtsBody = document.getElementById("dashboardPanelDebtsBody");
+      if (!goalsBody || !debtsBody) return;
+
+      const activeGoals = state.goals.filter(goal => Number(goal.current || 0) < Number(goal.target || 0));
+      const activeDebts = state.debts.filter(debt => Number(debt.remaining || 0) > 0);
+
+      if (!activeGoals.length) {
+        goalsBody.innerHTML = `<p class="small-note">${escapeHtml(t("dash_no_goals"))}</p>`;
+      } else {
+        goalsBody.innerHTML = activeGoals
+          .map(
+            goal => `
+          <div class="dashboard-panel-row">
+            <div>
+              <strong>${escapeHtml(goal.name)}</strong>
+              <div class="small-note">${escapeHtml(tf("dash_goal_progress", { cur: formatCurrency(goal.current), tgt: formatCurrency(goal.target) }))}</div>
+            </div>
+            <button type="button" class="btn-secondary btn-small" data-action="dashboard-edit-goal" data-goal-id="${goal.id}">${escapeHtml(t("btn_edit_short"))}</button>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      if (!activeDebts.length) {
+        debtsBody.innerHTML = `<p class="small-note">${escapeHtml(t("dash_no_debts"))}</p>`;
+      } else {
+        debtsBody.innerHTML = activeDebts
+          .map(
+            debt => `
+          <div class="dashboard-panel-row">
+            <div>
+              <strong>${escapeHtml(debt.name)}</strong>
+              <div class="small-note">${escapeHtml(tf("dash_debt_line", { rem: formatCurrency(debt.remaining), pay: formatCurrency(debt.payment) }))}</div>
+            </div>
+            <button type="button" class="btn-secondary btn-small" data-action="dashboard-edit-debt" data-debt-id="${debt.id}">${escapeHtml(t("btn_edit_short"))}</button>
+          </div>
+        `
+          )
+          .join("");
+      }
+    }
+
+    function getOverspentCount(month, year) {
+      return getOverspentBudgetsForPeriod(month, year).length;
+    }
+
+    function getExpenseCategoryData(stats) {
+      const map = {};
+      stats.expenses.forEach(op => {
+        map[op.category] = (map[op.category] || 0) + Number(op.amount);
+      });
+
+      return Object.entries(map)
+        .map(([label, value]) => ({ label, value }))
+        .filter(item => item.value > 0);
+    }
+
+    function getAccountsTotal() {
+      return state.accounts.reduce((sum, acc) => sum + getAccountBalance(acc.id), 0);
+    }
+
+    function updateDashboard() {
+      const month = document.getElementById("dashboardMonth").value;
+      const year = Number(document.getElementById("dashboardYear").value);
+      const stats = calculatePeriodStats(month, year);
+      const overspentCount = getOverspentCount(month, year);
+      const activeGoalsCount = state.goals.filter(goal => Number(goal.current || 0) < Number(goal.target || 0)).length;
+      const activeDebtsCount = state.debts.filter(debt => Number(debt.remaining || 0) > 0).length;
+
+      document.getElementById("kpiIncome").textContent = formatCurrency(stats.totalIncome);
+      document.getElementById("kpiExpenses").textContent = formatCurrency(stats.totalExpenses);
+      document.getElementById("kpiBalance").textContent = formatCurrency(stats.balance);
+      document.getElementById("kpiReserve").textContent = formatCurrency(stats.reserve);
+      document.getElementById("kpiOperations").textContent = stats.operations.length;
+      document.getElementById("kpiExpensePercent").textContent = formatPercent(stats.expensePercent);
+      document.getElementById("kpiAccountsTotal").textContent = formatCurrency(getAccountsTotal());
+      document.getElementById("kpiOverspent").textContent = overspentCount;
+      document.getElementById("kpiActiveGoals").textContent = activeGoalsCount;
+      document.getElementById("kpiActiveDebts").textContent = activeDebtsCount;
+
+      updateDashboardIcons();
+      const goalsPanel = document.getElementById("dashboardPanelGoals");
+      const debtsPanel = document.getElementById("dashboardPanelDebts");
+      if (
+        (goalsPanel && !goalsPanel.hasAttribute("hidden")) ||
+        (debtsPanel && !debtsPanel.hasAttribute("hidden"))
+      ) {
+        renderDashboardPanels();
+      }
+
+      const statusEl = document.getElementById("budgetStatus");
+      statusEl.className = "status-box";
+
+      if (stats.totalIncome === 0 && stats.totalExpenses === 0) {
+        statusEl.classList.add("status-normal");
+        statusEl.textContent = t("status_add_ops");
+      } else if (stats.balance < 0 || overspentCount >= 2) {
+        statusEl.classList.add("status-bad");
+        statusEl.textContent = t("status_danger_month");
+      } else if (stats.expensePercent >= 90 || overspentCount === 1) {
+        statusEl.classList.add("status-normal");
+        statusEl.textContent = t("status_tense_month");
+      } else if (stats.balance >= stats.reserve) {
+        statusEl.classList.add("status-good");
+        statusEl.textContent = t("status_good");
+      } else {
+        statusEl.classList.add("status-normal");
+        statusEl.textContent = t("status_ok_reserve_low");
+      }
+
+      updateTips(stats, overspentCount);
+      animateExpensePie(stats);
+      animateMonthlyChart();
+      updateForecast();
+    }
+
+    function updateTips(stats, overspentCount) {
+      const tips = [];
+      const month = document.getElementById("dashboardMonth").value;
+      const year = Number(document.getElementById("dashboardYear").value);
+
+      if (stats.totalIncome === 0) {
+        tips.push(t("tip_need_income"));
+      }
+
+      if (stats.balance < 0) {
+        tips.push(t("tip_deficit"));
+      }
+
+      if (stats.expensePercent > 80) {
+        tips.push(t("tip_high_load"));
+      }
+
+      const expenseByCategory = {};
+      stats.expenses.forEach(op => {
+        expenseByCategory[op.category] = (expenseByCategory[op.category] || 0) + Number(op.amount);
+      });
+
+      const topExpense = Object.entries(expenseByCategory).sort((a, b) => b[1] - a[1])[0];
+      if (topExpense) {
+        tips.push(
+          tf("tip_top_cat", {
+            cat: displayCategoryLabel(topExpense[0]),
+            amt: formatCurrency(topExpense[1])
+          })
+        );
+      }
+
+      const totalDebtPayments = state.debts.reduce((sum, debt) => sum + Number(debt.payment || 0), 0);
+      if (stats.totalIncome > 0 && totalDebtPayments > stats.totalIncome * 0.3) {
+        tips.push(t("tip_debt_high"));
+      }
+
+      const activeGoals = state.goals.filter(goal => goal.current < goal.target).length;
+      if (activeGoals > 0) {
+        tips.push(tf("tip_active_goals", { n: activeGoals }));
+      }
+
+      if (overspentCount > 0) {
+        const overspent = getOverspentBudgetsForPeriod(month, year);
+        overspent.slice(0, 3).forEach(item => {
+          tips.push(
+            tf("tip_overspend_cat", {
+              cat: displayCategoryLabel(item.category),
+              lim: formatCurrency(item.limit),
+              act: formatCurrency(item.actual)
+            })
+          );
+        });
+      }
+
+      if (state.accounts.some(acc => getAccountBalance(acc.id) < 0)) {
+        tips.push(t("tip_negative_acc"));
+      }
+
+      if (tips.length === 0) {
+        tips.push(t("tip_stable"));
+      }
+
+      const tipsList = document.getElementById("tipsList");
+      clearElement(tipsList);
+      tips.forEach(tip => {
+        const li = document.createElement("li");
+        li.textContent = tip;
+        tipsList.appendChild(li);
+      });
+    }
+
+    function animateExpensePie(stats) {
+      const items = getExpenseCategoryData(stats);
+      const total = items.reduce((sum, item) => sum + item.value, 0);
+      const legend = document.getElementById("expenseLegend");
+      clearElement(legend);
+
+      const canvas = document.getElementById("expensePieChart");
+      const ctx = canvas.getContext("2d");
+      let frame = 0;
+      const maxFrames = 30;
+
+      function draw(progress) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (total <= 0) {
+          ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--muted');
+          ctx.font = "18px Arial";
+          ctx.textAlign = "center";
+          ctx.fillText(t("chart_no_expenses"), canvas.width / 2, canvas.height / 2);
+          return;
+        }
+
+        const centerX = 180;
+        const centerY = 180;
+        const radius = 110;
+        let startAngle = -Math.PI / 2;
+
+        items.forEach((item, index) => {
+          const sliceAngle = ((item.value / total) * Math.PI * 2) * progress;
+          const color = CHART_COLORS[index % CHART_COLORS.length];
+
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+          ctx.closePath();
+          ctx.fillStyle = color;
+          ctx.fill();
+
+          if (progress > 0.95) {
+            const percent = (item.value / total) * 100;
+            if (percent >= 7) {
+              const fullAngle = (item.value / total) * Math.PI * 2;
+              const middle = startAngle + fullAngle / 2;
+              const textX = centerX + Math.cos(middle) * radius * 0.62;
+              const textY = centerY + Math.sin(middle) * radius * 0.62;
+
+              ctx.fillStyle = "#ffffff";
+              ctx.font = "bold 13px Arial";
+              ctx.textAlign = "center";
+              ctx.fillText(percent.toFixed(0) + "%", textX, textY);
+            }
+          }
+
+          startAngle += (item.value / total) * Math.PI * 2;
+        });
+
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+        ctx.font = "bold 16px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(t("chart_total_expenses"), 560, 150);
+
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--danger');
+        ctx.font = "bold 24px Arial";
+        ctx.fillText(formatCurrency(total), 560, 184);
+
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--muted');
+        ctx.font = "14px Arial";
+        ctx.fillText(t("chart_by_category"), 560, 212);
+      }
+
+      items.forEach((item, index) => {
+        const legendItem = document.createElement("div");
+        legendItem.className = "legend-item";
+
+        const colorMarker = document.createElement("span");
+        colorMarker.className = "legend-color";
+        colorMarker.style.background = CHART_COLORS[index % CHART_COLORS.length];
+
+        const label = document.createElement("span");
+        label.textContent = `${displayCategoryLabel(item.label)}: ${formatCurrency(item.value)}`;
+
+        legendItem.appendChild(colorMarker);
+        legendItem.appendChild(label);
+        legend.appendChild(legendItem);
+      });
+
+      function animate() {
+        frame++;
+        draw(Math.min(frame / maxFrames, 1));
+        if (frame < maxFrames) requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    function buildMonthlyHistory() {
+      const map = {};
+
+      state.operations.forEach(op => {
+        const period = `${monthNameFromDate(op.date)} ${yearFromDate(op.date)}`;
+        if (!map[period]) {
+          map[period] = { period, income: 0, expense: 0, count: 0 };
+        }
+
+        if (op.type === "income") map[period].income += Number(op.amount);
+        if (op.type === "expense") map[period].expense += Number(op.amount);
+        map[period].count += 1;
+      });
+
+      const history = Object.values(map).map(item => {
+        const balance = item.income - item.expense;
+        const expensePercent = item.income > 0 ? (item.expense / item.income) * 100 : 0;
+        const reserve = item.income * ((state.settings.reservePercent || 10) / 100);
+
+        return { ...item, balance, expensePercent, reserve };
+      });
+
+      history.sort((a, b) => {
+        const [mA, yA] = a.period.split(" ");
+        const [mB, yB] = b.period.split(" ");
+        const dA = new Date(Number(yA), MONTHS_RU.indexOf(mA), 1);
+        const dB = new Date(Number(yB), MONTHS_RU.indexOf(mB), 1);
+        return dA - dB;
+      });
+
+      return history;
+    }
+
+    function animateMonthlyChart() {
+      const canvas = document.getElementById("monthlyBarChart");
+      const ctx = canvas.getContext("2d");
+      const history = buildMonthlyHistory().slice(-6);
+
+      let frame = 0;
+      const maxFrames = 35;
+
+      function draw(progress) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (!history.length) {
+          ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--muted');
+          ctx.font = "18px Arial";
+          ctx.textAlign = "center";
+          ctx.fillText(t("chart_no_monthly"), canvas.width / 2, canvas.height / 2);
+          return;
+        }
+
+        const margin = 60;
+        const baseY = 260;
+        const chartHeight = 180;
+        const availableWidth = canvas.width - margin * 2;
+        const groupWidth = availableWidth / history.length;
+        const barWidth = 28;
+
+        const maxValue = Math.max(...history.map(item => Math.max(item.income, item.expense)), 1);
+
+        ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border');
+        ctx.beginPath();
+        ctx.moveTo(margin, baseY);
+        ctx.lineTo(canvas.width - margin, baseY);
+        ctx.stroke();
+
+        history.forEach((item, index) => {
+          const x = margin + index * groupWidth + groupWidth / 2;
+          const incomeHeight = ((item.income / maxValue) * chartHeight) * progress;
+          const expenseHeight = ((item.expense / maxValue) * chartHeight) * progress;
+
+          ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--success');
+          ctx.fillRect(x - barWidth - 4, baseY - incomeHeight, barWidth, incomeHeight);
+
+          ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--danger');
+          ctx.fillRect(x + 4, baseY - expenseHeight, barWidth, expenseHeight);
+
+          ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+          ctx.font = "12px Arial";
+          ctx.textAlign = "center";
+          ctx.fillText(shortMonthForChart(item.period.split(" ")[0]), x, baseY + 18);
+        });
+
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--success');
+        ctx.fillRect(470, 24, 18, 12);
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+        ctx.font = "14px Arial";
+        ctx.textAlign = "left";
+        ctx.fillText(t("chart_legend_income"), 494, 34);
+
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--danger');
+        ctx.fillRect(570, 24, 18, 12);
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+        ctx.fillText(t("chart_legend_expense"), 594, 34);
+      }
+
+      function animate() {
+        frame++;
+        draw(Math.min(frame / maxFrames, 1));
+        if (frame < maxFrames) requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    function updateForecast() {
+      const history = buildMonthlyHistory().slice(-3);
+      if (!history.length) {
+        document.getElementById("forecastIncome").textContent = formatCurrency(0);
+        document.getElementById("forecastExpense").textContent = formatCurrency(0);
+        document.getElementById("forecastBalance").textContent = formatCurrency(0);
+        document.getElementById("forecastNote").textContent = t("forecast_no_data");
+        return;
+      }
+
+      const avgIncome = history.reduce((s, x) => s + x.income, 0) / history.length;
+      const avgExpense = history.reduce((s, x) => s + x.expense, 0) / history.length;
+      const avgBalance = avgIncome - avgExpense;
+
+      document.getElementById("forecastIncome").textContent = formatCurrency(avgIncome);
+      document.getElementById("forecastExpense").textContent = formatCurrency(avgExpense);
+      document.getElementById("forecastBalance").textContent = formatCurrency(avgBalance);
+      document.getElementById("forecastNote").textContent = tf("forecast_note_avg", { n: history.length });
+    }
+
+    // ---------------------------
+    // CALENDAR
+    // ---------------------------
+    function goToCurrentCalendarMonth() {
+      document.getElementById("calendarMonth").value = getCurrentMonthName();
+      document.getElementById("calendarYear").value = getCurrentYear();
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const monthName = document.getElementById("calendarMonth").value;
+      const year = Number(document.getElementById("calendarYear").value);
+      const monthIndex = MONTHS_RU.indexOf(monthName);
+      const grid = document.getElementById("calendarGrid");
+
+      clearElement(grid);
+
+      getWeekDays().forEach(day => {
+        const header = document.createElement("div");
+        header.className = "calendar-weekday";
+        header.textContent = day;
+        grid.appendChild(header);
+      });
+
+      const firstDate = new Date(year, monthIndex, 1);
+      const lastDate = new Date(year, monthIndex + 1, 0);
+      let firstDay = firstDate.getDay();
+      if (firstDay === 0) firstDay = 7;
+
+      const totalDays = lastDate.getDate();
+      const prevMonthLastDate = new Date(year, monthIndex, 0).getDate();
+
+      const calendarOperations = state.operations.filter(op =>
+        monthNameFromDate(op.date) === monthName &&
+        yearFromDate(op.date) === year
+      );
+
+      const operationsByDay = new Map();
+      calendarOperations.forEach(op => {
+        const day = dayFromDate(op.date);
+        const list = operationsByDay.get(day) || [];
+        list.push(op);
+        operationsByDay.set(day, list);
+      });
+
+      const today = new Date();
+      const todayMonth = today.getMonth();
+      const todayYear = today.getFullYear();
+      const todayDate = today.getDate();
+
+      function createDayNumber(dayNum) {
+        const dayNumber = document.createElement("div");
+        dayNumber.className = "calendar-day-number";
+        dayNumber.textContent = String(dayNum);
+        return dayNumber;
+      }
+
+      for (let i = firstDay - 1; i > 0; i--) {
+        const dayNum = prevMonthLastDate - i + 1;
+        const cell = document.createElement("div");
+        cell.className = "calendar-day muted";
+        cell.appendChild(createDayNumber(dayNum));
+        grid.appendChild(cell);
+      }
+
+      for (let day = 1; day <= totalDays; day++) {
+        const dayOps = operationsByDay.get(day) || [];
+        const income = dayOps.filter(op => op.type === "income").reduce((s, x) => s + Number(x.amount), 0);
+        const expense = dayOps.filter(op => op.type === "expense").reduce((s, x) => s + Number(x.amount), 0);
+
+        const cell = document.createElement("div");
+        cell.className = "calendar-day";
+
+        if (monthIndex === todayMonth && year === todayYear && day === todayDate) {
+          cell.classList.add("today");
+        }
+
+        cell.appendChild(createDayNumber(day));
+
+        const incomeDiv = document.createElement("div");
+        incomeDiv.className = "calendar-amount success-text";
+        incomeDiv.textContent = income > 0 ? `+${formatCurrency(income)}` : "";
+        cell.appendChild(incomeDiv);
+
+        const expenseDiv = document.createElement("div");
+        expenseDiv.className = "calendar-amount danger-text";
+        expenseDiv.textContent = expense > 0 ? `-${formatCurrency(expense)}` : "";
+        cell.appendChild(expenseDiv);
+
+        const list = document.createElement("div");
+        list.className = "calendar-list";
+
+        dayOps.slice(0, 3).forEach((op, index) => {
+          const line = document.createElement("div");
+          if (op.type === "transfer") {
+            line.textContent = tf("calendar_transfer_line", { amt: formatCurrency(op.amount) });
+          } else {
+            const sign = op.type === "income" ? "+" : "-";
+            line.textContent = `${sign} ${displayCategoryLabel(op.category)}: ${formatCurrency(op.amount)}`;
+          }
+          list.appendChild(line);
+
+          if (index < Math.min(dayOps.length, 3) - 1) {
+            list.appendChild(document.createElement("br"));
+          }
+        });
+
+        cell.appendChild(list);
+
+        if (dayOps.length > 3) {
+          const more = document.createElement("div");
+          more.className = "calendar-list";
+          more.textContent = tf("calendar_more", { n: dayOps.length - 3 });
+          cell.appendChild(more);
+        }
+
+        grid.appendChild(cell);
+      }
+
+      const filledCells = (firstDay - 1) + totalDays;
+      const remaining = (7 - (filledCells % 7)) % 7;
+
+      for (let i = 1; i <= remaining; i++) {
+        const cell = document.createElement("div");
+        cell.className = "calendar-day muted";
+        cell.appendChild(createDayNumber(i));
+        grid.appendChild(cell);
+      }
+    }
+
+    // ---------------------------
+    // REPORTS
+    // ---------------------------
+    function renderHistoryTable() {
+      const tbody = document.getElementById("historyTableBody");
+      const history = buildMonthlyHistory();
+
+      clearElement(tbody);
+
+      if (!history.length) {
+        tbody.appendChild(createTableMessageRow(7, t("history_empty")));
+        return;
+      }
+
+      history.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.appendChild(createTextCell(formatPeriodRuForDisplay(item.period)));
+        tr.appendChild(createTextCell(formatCurrency(item.income)));
+        tr.appendChild(createTextCell(formatCurrency(item.expense)));
+        tr.appendChild(createTextCell(formatCurrency(item.balance)));
+        tr.appendChild(createTextCell(formatPercent(item.expensePercent)));
+        tr.appendChild(createTextCell(formatCurrency(item.reserve)));
+        tr.appendChild(createTextCell(String(item.count)));
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAnnualReport() {
+      const year = Number(document.getElementById("reportYear").value);
+      const tbody = document.getElementById("annualReportBody");
+
+      const rows = MONTHS_RU.map(ruMonth => {
+        const stats = calculatePeriodStats(ruMonth, year);
+        return {
+          monthRu: ruMonth,
+          income: stats.totalIncome,
+          expense: stats.totalExpenses,
+          balance: stats.balance,
+          percent: stats.expensePercent,
+          count: stats.operations.length
+        };
+      });
+
+      clearElement(tbody);
+
+      if (rows.every(row => row.income === 0 && row.expense === 0)) {
+        tbody.appendChild(createTableMessageRow(6, t("report_empty_year")));
+        return;
+      }
+
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+        if (row.balance < 0) tr.className = "danger-row";
+        else if (row.percent > 85) tr.className = "warning-row";
+
+        tr.appendChild(createTextCell(localizeMonthFromRu(row.monthRu)));
+        tr.appendChild(createTextCell(formatCurrency(row.income)));
+        tr.appendChild(createTextCell(formatCurrency(row.expense)));
+        tr.appendChild(createTextCell(formatCurrency(row.balance)));
+        tr.appendChild(createTextCell(formatPercent(row.percent)));
+        tr.appendChild(createTextCell(String(row.count)));
+        tbody.appendChild(tr);
+      });
+    }
+
+    function setCurrentReportYear() {
+      document.getElementById("reportYear").value = getCurrentYear();
+      renderAnnualReport();
+    }
+
+    // ---------------------------
+    // EXPORT / IMPORT
+    // ---------------------------
+    function exportCSV() {
+      if (!state.operations.length) {
+        alert(t("alert_export_empty"));
+        return;
+      }
+
+      const headers = [
+        t("csv_h_date"),
+        t("csv_h_type"),
+        t("csv_h_account"),
+        t("csv_h_category"),
+        t("csv_h_desc"),
+        t("csv_h_amount"),
+        t("csv_h_from"),
+        t("csv_h_to")
+      ];
+      let csv = "\uFEFF" + headers.join(";") + "\n";
+
+      state.operations.forEach(op => {
+        const accCsv = state.accounts.find(a => a.id === op.accountId);
+        const fromAccCsv = state.accounts.find(a => a.id === op.fromAccountId);
+        const toAccCsv = state.accounts.find(a => a.id === op.toAccountId);
+        const accountName = accCsv ? AppI18n.getAccountDisplayName(accCsv) : "";
+        const fromName = fromAccCsv ? AppI18n.getAccountDisplayName(fromAccCsv) : "";
+        const toName = toAccCsv ? AppI18n.getAccountDisplayName(toAccCsv) : "";
+
+        csv += [
+          op.date,
+          op.type,
+          accountName,
+          op.category || "",
+          `"${(op.description || "").replace(/"/g, '""')}"`,
+          op.amount || 0,
+          fromName,
+          toName
+        ].join(";") + "\n";
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "family_budget_pro.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], {
+        type: "application/json;charset=utf-8;"
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "family_budget_pro.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          state = {
+            settings: { ...state.settings, ...(imported.settings || {}) },
+            accounts: Array.isArray(imported.accounts) && imported.accounts.length ? imported.accounts : state.accounts,
+            operations: Array.isArray(imported.operations) ? imported.operations : [],
+            categoryBudgets: Array.isArray(imported.categoryBudgets) ? imported.categoryBudgets : [],
+            goals: Array.isArray(imported.goals) ? imported.goals : [],
+            debts: Array.isArray(imported.debts) ? imported.debts : []
+          };
+
+          saveState();
+          applyTheme();
+          syncSettingsToInputs();
+          initInputs();
+          resetOperationForm();
+          refreshAll();
+          alert(t("alert_import_ok"));
+        } catch (err) {
+          alert(t("alert_import_fail"));
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function resetAllData() {
+      const ok = confirm(t("confirm_reset_all"));
+      if (!ok) return;
+
+      localStorage.removeItem(STORAGE_KEY);
+
+      state = {
+        settings: {
+          reservePercent: 10,
+          currencySymbol: "₽",
+          darkTheme: false,
+          dashboardIcons: {}
+        },
+        accounts: [
+          { id: "acc-cash", name: "Наличные", initialBalance: 0 },
+          { id: "acc-card", name: "Карта", initialBalance: 0 },
+          { id: "acc-deposit", name: "Вклад", initialBalance: 0 }
+        ],
+        operations: [],
+        categoryBudgets: [],
+        goals: [],
+        debts: []
+      };
+
+      applyTheme();
+      syncSettingsToInputs();
+      initInputs();
+      resetOperationForm();
+      resetAccountForm();
+      resetBudgetForm();
+      resetGoalForm();
+      resetDebtForm();
+      refreshAll();
+    }
+
+    // ---------------------------
+    // DEMO
+    // ---------------------------
+    function fillDemoData() {
+      const year = getCurrentYear();
+      const month = String(new Date().getMonth() + 1).padStart(2, "0");
+
+      if (state.accounts.length < 3) {
+        state.accounts = [
+          { id: "acc-cash", name: "Наличные", initialBalance: 15000 },
+          { id: "acc-card", name: "Карта", initialBalance: 20000 },
+          { id: "acc-deposit", name: "Вклад", initialBalance: 50000 }
+        ];
+      } else {
+        state.accounts = state.accounts.map((a, i) => ({
+          ...a,
+          initialBalance: [15000, 20000, 50000][i] ?? a.initialBalance
+        }));
+      }
+
+      const accCash = state.accounts[0].id;
+      const accCard = state.accounts[1].id;
+      const accDeposit = state.accounts[2].id;
+
+      const demoOperations = [
+        { date: `${year}-${month}-01`, type: "income", accountId: accCard, category: "Зарплата", amount: 90000, description: "Основная зарплата" },
+        { date: `${year}-${month}-05`, type: "income", accountId: accCard, category: "Подработка", amount: 12000, description: "Фриланс" },
+        { date: `${year}-${month}-02`, type: "expense", accountId: accCard, category: "Жильё", amount: 32000, description: "Аренда" },
+        { date: `${year}-${month}-03`, type: "expense", accountId: accCard, category: "Коммунальные", amount: 7000, description: "ЖКХ" },
+        { date: `${year}-${month}-04`, type: "expense", accountId: accCard, category: "Продукты", amount: 9000, description: "Первая закупка" },
+        { date: `${year}-${month}-10`, type: "expense", accountId: accCard, category: "Продукты", amount: 8500, description: "Магазин" },
+        { date: `${year}-${month}-12`, type: "expense", accountId: accCash, category: "Транспорт", amount: 4500, description: "Бензин и метро" },
+        { date: `${year}-${month}-14`, type: "expense", accountId: accCard, category: "Дети", amount: 6500, description: "Кружки" },
+        { date: `${year}-${month}-17`, type: "expense", accountId: accCash, category: "Развлечения", amount: 5200, description: "Кино и кафе" },
+        { date: `${year}-${month}-20`, type: "expense", accountId: accCard, category: "Медицина", amount: 2800, description: "Аптека" },
+        { date: `${year}-${month}-22`, type: "transfer", amount: 10000, fromAccountId: accCard, toAccountId: accDeposit, category: "Перевод", description: "Пополнение вклада" }
+      ];
+
+      const demoBudgets = [
+        { id: generateId(), month: getCurrentMonthName(), year, category: "Продукты", limit: 15000 },
+        { id: generateId(), month: getCurrentMonthName(), year, category: "Развлечения", limit: 4000 },
+        { id: generateId(), month: getCurrentMonthName(), year, category: "Транспорт", limit: 5000 }
+      ];
+
+      const demoGoals = [
+        {
+          id: generateId(),
+          name: "Подушка безопасности",
+          target: 300000,
+          current: 85000,
+          deadline: `${year + 1}-12-31`,
+          description: "Резерв семьи на непредвиденные расходы"
+        }
+      ];
+
+      const demoDebts = [
+        {
+          id: generateId(),
+          name: "Автокредит",
+          total: 500000,
+          remaining: 210000,
+          payment: 18000,
+          description: "Фиксированный ежемесячный платёж"
+        }
+      ];
+
+      state.operations = [...state.operations, ...demoOperations.map(item => ({ ...item, id: generateId() }))];
+
+      if (!state.categoryBudgets.length) state.categoryBudgets = demoBudgets;
+      if (!state.goals.length) state.goals = demoGoals;
+      if (!state.debts.length) state.debts = demoDebts;
+
+      saveState();
+      populateAccountSelects();
+      refreshAll();
+      alert(t("alert_demo_ok"));
+    }
+
+
+    function initDashboardPanelDelegation() {
+      const dash = document.getElementById("dashboard");
+      if (!dash || dash.dataset.panelDelegationBound) return;
+      dash.dataset.panelDelegationBound = "1";
+      dash.addEventListener("click", event => {
+        const goalBtn = event.target.closest('[data-action="dashboard-edit-goal"]');
+        if (goalBtn) {
+          event.stopPropagation();
+          editGoal(goalBtn.dataset.goalId);
+          openTab("goals");
+          return;
+        }
+        const debtBtn = event.target.closest('[data-action="dashboard-edit-debt"]');
+        if (debtBtn) {
+          event.stopPropagation();
+          editDebt(debtBtn.dataset.debtId);
+          openTab("debts");
+          return;
+        }
+      });
+    }
+
+    function initStaticActions() {
+      const actionHandlers = {
+        "toggle-theme": () => toggleTheme(),
+        "print-page": () => window.print(),
+        "export-csv": () => exportCSV(),
+        "export-json": () => exportJSON(),
+        "reset-all-data": () => resetAllData(),
+        "save-operation": () => saveOperation(),
+        "reset-operation-form": () => resetOperationForm(),
+        "fill-demo-data": () => fillDemoData(),
+        "save-account": () => saveAccount(),
+        "reset-account-form": () => resetAccountForm(),
+        "add-transfer": () => addTransfer(),
+        "save-category-budget": () => saveCategoryBudget(),
+        "reset-budget-form": () => resetBudgetForm(),
+        "go-to-current-calendar-month": () => goToCurrentCalendarMonth(),
+        "refresh-all": () => refreshAll(),
+        "save-goal": () => saveGoal(),
+        "reset-goal-form": () => resetGoalForm(),
+        "save-debt": () => saveDebt(),
+        "reset-debt-form": () => resetDebtForm(),
+        "set-current-report-year": () => setCurrentReportYear(),
+        "render-annual-report": () => renderAnnualReport(),
+        "apply-settings": () => applySettings(),
+        "edit-dashboard-icon": e => editDashboardIcon(e.currentTarget.dataset.iconKey),
+        "toggle-dashboard-panel": e => toggleDashboardPanel(e.currentTarget.dataset.panel),
+        "dashboard-icon-modal-save": () => saveDashboardIconModal(),
+        "dashboard-icon-modal-cancel": () => closeDashboardIconModal(),
+        "dashboard-icon-modal-reset": () => resetDashboardIconModal()
+      };
+
+      document.querySelectorAll("[data-action]").forEach(element => {
+        const actionName = element.dataset.action;
+        const handler = actionHandlers[actionName];
+        if (!handler) return;
+        element.addEventListener("click", event => handler(event));
+      });
+
+      document.querySelectorAll("[data-tab-id]").forEach(element => {
+        const open = event => {
+          if (event && event.target && typeof event.target.closest === "function") {
+            if (event.target.closest(".kpi-action-btn")) return;
+            if (event.target.closest("[data-action]")) return;
+          }
+          openTab(element.dataset.tabId, element.classList.contains("tab-btn") ? element : null);
+        };
+        element.addEventListener("click", open);
+
+        if (!element.classList.contains("tab-btn")) {
+          element.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+              if (event.target.closest && event.target.closest(".kpi-action-btn")) return;
+              if (event.target.closest && event.target.closest("[data-action]")) return;
+              event.preventDefault();
+              open(event);
+            }
+          });
+        }
+      });
+    }
+
+
+    // ---------------------------
+    // REFRESH
+    // ---------------------------
+    function refreshAll() {
+      saveSettings();
+      populateAccountSelects();
+      renderDashboardIconsSettings();
+      updateDashboard();
+      renderOperationsTable();
+      renderAccounts();
+      renderCategoryBudgetsTable();
+      renderCalendar();
+      renderGoals();
+      renderDebts();
+      renderHistoryTable();
+      renderAnnualReport();
+    }
+
+    window.addEventListener("DOMContentLoaded", function() {
+      AppI18n.init();
+      applyAppStaticI18n();
+      loadState();
+      initInputs();
+      syncSettingsToInputs();
+      applyTheme();
+      initStaticActions();
+      initDashboardPanelDelegation();
+      initDashboardIconModal();
+      initSettingsDashboardIconsDelegation();
+
+      resetOperationForm();
+      resetAccountForm();
+      resetBudgetForm();
+      resetGoalForm();
+      resetDebtForm();
+
+      refreshAll();
+      applyHashTab();
+      window.addEventListener("hashchange", applyHashTab);
+    });
+  </script>
+</body>
+</html>

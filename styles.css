@@ -665,6 +665,25 @@ html[data-vibe-level="1"] .hero-copy h1 .title-ombre {
   margin-top: -0.15rem;
 }
 
+.project-preview--vibe {
+  padding: 2px;
+  border: none;
+  background: linear-gradient(
+    125deg,
+    rgba(0, 240, 255, 0.55),
+    rgba(255, 45, 158, 0.45),
+    rgba(0, 180, 255, 0.35)
+  );
+  box-shadow:
+    0 0 0 1px rgba(0, 240, 255, 0.15),
+    0 0 40px rgba(0, 240, 255, 0.12),
+    0 16px 44px rgba(0, 0, 0, 0.45);
+}
+
+.project-preview--vibe img {
+  border-radius: 0 16px 0 16px;
+}
+
 .split-list,
 .audience-list,
 .contacts {
