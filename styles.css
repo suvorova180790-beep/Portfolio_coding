@@ -389,9 +389,12 @@ html[data-vibe-level="1"] .hero-copy h1 .title-ombre {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+  flex-wrap: wrap;
+  max-width: 100%;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   font-size: 0.68rem;
+  line-height: 1.35;
   color: var(--accent-2);
   border: 1px solid rgba(0, 240, 255, 0.38);
   border-radius: 999px;
@@ -833,6 +836,12 @@ footer {
 @media (max-width: 640px) {
   .section {
     padding: 3.5rem 0;
+  }
+
+  .hero-tag {
+    letter-spacing: 0.08em;
+    font-size: 0.6rem;
+    padding: 0.32rem 0.5rem;
   }
 
   #skills .card:nth-child(2n),
